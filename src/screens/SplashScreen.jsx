@@ -37,14 +37,14 @@ const SplashScreen = () => {
   }, []);
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}>
+    <View style={[styles.container, { backgroundColor: COLORS.whiteText }]}>
       <Animatable.View 
         style={StyleSheet.absoluteFill}
         animation={transition ? "fadeOut" : undefined}
         // duration={10000}
         duration={1000}
       >
-        <LinearGradient style={styles.logoContainer} colors={[theme.background, theme.background]}>
+        <LinearGradient style={styles.logoContainer} colors={[COLORS.whiteText, COLORS.whiteText]}>
           <Image source={require('../../assets/images/splash-icon-white.png')}  style={styles.topImage}/>
           <Animatable.Image 
             source={require('../../assets/images/splash-logo.png')} 

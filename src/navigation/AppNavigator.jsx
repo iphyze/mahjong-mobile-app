@@ -4,10 +4,12 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import BottomTabNavigator from './BottomTabNavigator';
 import ThemeAppearanceScreen from '../screens/ThemeAppearanceScreen';
 import OnboardingScreen from '../screens/OnboardingScreen';
-import LoginScreen from '../screens/LoginScreen';
+import LoginScreen from '../screens/authScreens/LoginScreen';
 import { useTheme } from '../components/common/ThemeProvider';
 import { useAuth } from '../context/AuthContext';
 import { NavigationContainer } from '@react-navigation/native';
+import { COLORS } from '../utils/colors';
+import RegisterScreen from '../screens/authScreens/RegisterScreen';
 
 
 const Stack = createNativeStackNavigator();
@@ -18,12 +20,12 @@ export default function AppNavigator() {
 
 
   return (
-    <NavigationContainer style={{backgroundColor: theme.background}}>
+    <NavigationContainer style={{backgroundColor: COLORS.whiteText}}>
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
         contentStyle: {
-          backgroundColor: theme.background
+          backgroundColor: COLORS.whiteText
         }
       }}
     >
@@ -31,11 +33,15 @@ export default function AppNavigator() {
           <Stack.Group>
             <Stack.Screen name="Onboarding" component={OnboardingScreen} />
             <Stack.Screen name="Login" component={LoginScreen} />
+            <Stack.Screen name="Register" component={RegisterScreen} />
           </Stack.Group>
         ) : (
           // After onboarding, check authentication
           !isAuthenticated ? (
-            <Stack.Screen name="Login" component={LoginScreen} />
+            <Stack.Group>
+              <Stack.Screen name="Login" component={LoginScreen} />
+              <Stack.Screen name="Register" component={RegisterScreen} />
+            </Stack.Group>
           ) : (
             // Protected Stack for authenticated users
             <Stack.Group>

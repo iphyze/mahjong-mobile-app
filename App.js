@@ -9,7 +9,9 @@ import { ToastProvider } from './src/context/ToastContext';
 import { StatusBar } from 'expo-status-bar';
 import * as Font from 'expo-font';
 import SplashScreen from './src/screens/SplashScreen';
-import ErrorBoundary from './ErrorBoundary';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { COLORS } from './src/utils/colors';
+// import ErrorBoundary from './ErrorBoundary';
 
 const { width, height } = Dimensions.get('window');
 
@@ -35,7 +37,7 @@ const App = () => {
         // Mark app as ready
         setAppIsReady(true);
 
-        console.log('App mounted');
+        // console.log('App mounted');
 
         // Set timer to hide splash screen after fonts are loaded
         setTimeout(() => {
@@ -55,22 +57,22 @@ const App = () => {
   }
 
   return (
-    <ErrorBoundary>
       <Provider store={store}>
-        <ThemeProvider>
-          <StatusBar translucent backgroundColor="transparent" />
-            <ToastProvider>
-              <AuthProvider>
-                {isSplashVisible ? (
-                  <SplashScreen />
-                ) : (
-                  <AppNavigator />
-                )}
-              </AuthProvider>
-            </ToastProvider>
-        </ThemeProvider>
+          <ThemeProvider>
+            <StatusBar translucent backgroundColor="transparent" />
+              <ToastProvider>
+                <AuthProvider>
+                  <GestureHandlerRootView style={styles.container}>
+                  {isSplashVisible ? (
+                    <SplashScreen />
+                  ) : (
+                    <AppNavigator />
+                  )}
+                  </GestureHandlerRootView>
+                </AuthProvider>
+              </ToastProvider>
+          </ThemeProvider>
       </Provider>
-    </ErrorBoundary>
   );
 };
 
