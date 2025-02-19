@@ -26,12 +26,12 @@ const OnBoardingScreenThree = ({prevSlide}) => {
   
   const handleSignIn = async () => {
     await completeOnboarding();
-    navigation.replace('Login');
+    // navigation.replace('Login');
   };
 
   const handleSignUp = async () => {
     await completeOnboarding();
-    navigation.replace('Register');
+    // navigation.replace('Register');
   };
   
 

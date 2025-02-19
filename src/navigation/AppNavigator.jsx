@@ -10,9 +10,11 @@ import { useAuth } from '../context/AuthContext';
 import { NavigationContainer } from '@react-navigation/native';
 import { COLORS } from '../utils/colors';
 import RegisterScreen from '../screens/authScreens/RegisterScreen';
+import { createStackNavigator } from '@react-navigation/stack';
 
 
 const Stack = createNativeStackNavigator();
+// const Stack = createStackNavigator();
 
 export default function AppNavigator() {
   const theme = useTheme();
@@ -32,8 +34,8 @@ export default function AppNavigator() {
        {!hasOnboarded ? (
           <Stack.Group>
             <Stack.Screen name="Onboarding" component={OnboardingScreen} />
-            <Stack.Screen name="Login" component={LoginScreen} />
-            <Stack.Screen name="Register" component={RegisterScreen} />
+            {/* <Stack.Screen name="Login" component={LoginScreen} />
+            <Stack.Screen name="Register" component={RegisterScreen} /> */}
           </Stack.Group>
         ) : (
           // After onboarding, check authentication

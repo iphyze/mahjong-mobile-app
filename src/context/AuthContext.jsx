@@ -65,7 +65,7 @@ export const AuthProvider = ({ children }) => {
   };
   
   const checkAuthStatus = async () => {
-    // await AsyncStorage.clear();
+    // await AsyncStorage.cnlear();
 
     try {
       const isOnboarded = await checkOnboardingStatus();
@@ -150,9 +150,17 @@ export const AuthProvider = ({ children }) => {
   };
 
 
+  // useEffect(() => {
+  //   checkAuthStatus();
+  //   checkOnboardingStatus();
+  // }, []);
+
   useEffect(() => {
-    checkAuthStatus();
-    checkOnboardingStatus();
+    const initializeApp = async () => {
+      await checkOnboardingStatus();
+      await checkAuthStatus(); 
+    }
+    initializeApp();
   }, []);
 
 

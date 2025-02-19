@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { View, Text, StyleSheet, TextInput, Dimensions, ScrollView, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform, StatusBar, Image } from 'react-native';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
@@ -11,6 +11,9 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import * as Animatable from 'react-native-animatable'
 import { FontAwesome } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import CountryCodeBottomSheet from './CountryCodeBottomSheet';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faChevronDown, faLongArrowLeft } from '@fortawesome/free-solid-svg-icons';
 
 const { width, height } = Dimensions.get('window');
 const windowHeight = Dimensions.get('screen').height;
@@ -34,6 +37,9 @@ const RegisterSchema = Yup.object().shape({
     .min(6, 'Phone number must be at least 6 digits')
     .max(15, 'Phone number must not exceed 15 digits')
     .required('Phone number is required'),
+  country_code: Yup.string()
+    .matches(/^[0-9]+$/, 'Phone number must only contain digits')
+    .required('Country code is required'),
 });
 
 
@@ -45,6 +51,8 @@ const RegisterScreen = () => {
   const [isConfirmVisible, setIsConfirmVisible] = useState(false);
   const [focusedInput, setFocusedInput] = useState(null);
   const navigation = useNavigation();
+  const codebottomSheetRef = useRef(null);
+  const [country_code, setCountryCode] = useState('');
 
   const handleLogin = async (values, { setSubmitting }) => {
     try {
@@ -72,6 +80,10 @@ const RegisterScreen = () => {
     }
   };
 
+  const pressCodeHandler = useCallback(() => {
+    codebottomSheetRef.current?.expand();
+  }, []);
+
 
   return (
     <KeyboardAvoidingView style={[styles.container]}>
@@ -84,7 +96,7 @@ const RegisterScreen = () => {
       <Animatable.View animation={'fadeInDown'} style={styles.headerBox}>
 
         <TouchableOpacity style={styles.backBtnBox} onPress={() => navigation.goBack()}>
-          <FontAwesome name={'long-arrow-left'} size={RFValue(16)} color={COLORS.authText}/>
+          <FontAwesomeIcon icon={faLongArrowLeft} size={RFValue(14)} color={COLORS.authText}/>
         </TouchableOpacity>
 
         <Image source={require('../../../assets/images/splash-logo.png')} style={styles.logoImg}/>
@@ -96,7 +108,7 @@ const RegisterScreen = () => {
 
 
       
-      <Formik initialValues={{firstName: '', lastName: '', email: '', password: '', confirmPassword: '', number: '' }} validationSchema={RegisterSchema} onSubmit={handleLogin}>
+      <Formik initialValues={{firstName: '', lastName: '', email: '', password: '', confirmPassword: '', number: '', country_code: '' }} validationSchema={RegisterSchema} onSubmit={handleLogin}>
         {({ 
           handleChange, 
           handleBlur, 
@@ -104,7 +116,8 @@ const RegisterScreen = () => {
           values, 
           errors, 
           touched, 
-          isSubmitting 
+          isSubmitting,
+          setFieldValue 
         }) => (
           <Animatable.View style={styles.formContainer} animation={'fadeInUp'}>
             <Text style={[styles.title]}>Create Account</Text>
@@ -191,9 +204,19 @@ const RegisterScreen = () => {
 
 
             <View style={styles.inputContainer} animation={'fadeInUp'}>
-                <Text style={[styles.inputLabel, (errors.number && touched.number) && styles.errorText]}>Phone Number</Text>
+                <Text style={[styles.inputLabel, (errors.number && touched.number) && styles.errorText]}>Country Code / Phone Number</Text>
                 <View style={styles.formGroup}>
-                <TextInput style={[styles.input, 
+                
+                <TouchableOpacity style={[styles.codeBtnBox, 
+                  {borderColor: (errors.country_code && touched.country_code) ? COLORS.errText : COLORS.inputBg
+                  }]} activeOpacity={0.8} onPress={pressCodeHandler}>
+                  <FontAwesomeIcon icon={faChevronDown} size={RFValue(10)} color={(errors.country_code && touched.country_code) 
+                  ? COLORS.errText : COLORS.redThemeColorTwo05} style={styles.codeIcon}/>
+                  <Text style={[styles.codeBtn, (errors.country_code && touched.country_code) ? COLORS.errText : COLORS.redThemeColorTwo05
+                  ]}>{country_code ? country_code : 'Code'}</Text>
+                </TouchableOpacity>
+
+                <TextInput style={[styles.input, styles.numberInput,
                 {borderColor: (errors.number && touched.number) ? COLORS.errText : 
                   focusedInput === 'number' ? COLORS.redThemeColorTwo : 'transparent',
                   backgroundColor: focusedInput === 'number' ? COLORS.whiteText : COLORS.inputBg
@@ -213,6 +236,7 @@ const RegisterScreen = () => {
                   maxLength={15}
                 />
                 </View>
+                {errors.country_code && touched.country_code && (<Text style={styles.errorText}>{errors.country_code}</Text>)}
                 {errors.number && touched.number && (<Text style={styles.errorText}>{errors.number}</Text>)}
             </View>
 
@@ -296,6 +320,16 @@ const RegisterScreen = () => {
         )}
       </Formik>
       </ScrollView>
+
+      <CountryCodeBottomSheet
+          ref={codebottomSheetRef}
+          snapTo={'90%'}
+          backgroundColor={COLORS.whiteText}
+          backDropColor={'black'}
+          style={{ zIndex: 1000 }}
+          country_code={country_code}
+          setCountryCode={setCountryCode}
+        />
     </KeyboardAvoidingView>
   );
 };
@@ -306,6 +340,7 @@ const styles = StyleSheet.create({
     width: width,
     height: height,
     overflow: 'hidden',
+    backgroundColor: COLORS.whiteText
   },
   // statusBar: {
   //   width: width,
@@ -372,7 +407,7 @@ const styles = StyleSheet.create({
     position: 'relative',
     width: '100%',
     marginBottom: RFValue(3),
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     alignItems: 'center',
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -470,6 +505,34 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center'
+  },
+  numberInput: {
+    width: '70%',
+  },
+  codeBtnBox: {
+    position: 'relative',
+    width: '28%',
+    marginRight: '2%',
+    paddingHorizontal: RFValue(8),
+    paddingVertical: RFValue(16),
+    backgroundColor: COLORS.inputBg,
+    borderWidth: 1,
+    borderColor: 'transparent',
+    borderRadius: RFValue(2),
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    overflow: 'hidden'
+  },
+  codeIcon: {
+    position: 'absolute',
+    right: RFValue(7),
+  },
+  codeBtn: {
+    position: 'relative',
+    width: '90%',
+    fontSize: RFValue(10),
+    color: COLORS.redThemeColorTwo05,
   }
 });
 

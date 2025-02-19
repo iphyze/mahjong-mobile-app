@@ -11,6 +11,8 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import * as Animatable from 'react-native-animatable'
 import { FontAwesome } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faArrowCircleRight } from '@fortawesome/free-solid-svg-icons';
 
 const { width, height } = Dimensions.get('window');
 const windowHeight = Dimensions.get('screen').height;
@@ -76,7 +78,7 @@ const LoginScreen = () => {
 
       <TouchableOpacity style={styles.signUpBtn} activeOpacity={0.8} onPress={() => navigation.navigate('Register')}>
         <Text style={styles.signUpText}>Sign Up</Text>
-        <FontAwesome name={'arrow-circle-right'} color={COLORS.redThemeColorOne} size={RFValue(14)}/>
+        <FontAwesomeIcon icon={faArrowCircleRight} color={COLORS.redThemeColorOne} size={RFValue(12)}/>
       </TouchableOpacity>
 
 
@@ -183,6 +185,7 @@ const styles = StyleSheet.create({
     width: width,
     height: height,
     overflow: 'hidden',
+    backgroundColor: COLORS.whiteText
   },
   statusBar: {
     position: 'relative',

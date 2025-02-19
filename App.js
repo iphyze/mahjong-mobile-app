@@ -11,7 +11,11 @@ import * as Font from 'expo-font';
 import SplashScreen from './src/screens/SplashScreen';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { COLORS } from './src/utils/colors';
+import { enableScreens } from 'react-native-screens';
 // import ErrorBoundary from './ErrorBoundary';
+
+
+enableScreens();
 
 const { width, height } = Dimensions.get('window');
 
