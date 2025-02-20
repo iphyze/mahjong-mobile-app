@@ -115,6 +115,7 @@ const styles = StyleSheet.create({
     fontSize: RFValue(11),
     fontFamily: 'Nunito-Medium',
     marginLeft: RFValue(5),
+    lineHeight: RFValue(18)
   },
   icon: {
     top: RFValue(1)

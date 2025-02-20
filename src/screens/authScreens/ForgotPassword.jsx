@@ -22,15 +22,10 @@ const windowHeight = Dimensions.get('screen').height;
 const LoginSchema = Yup.object().shape({
   email: Yup.string()
     .email('Invalid email address').required('Email is required'),
-  password: Yup.string().min(6, 'Password must be at least 6 characters')
-    .matches(
-      /^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])[A-Za-z0-9!@#$%^&*]{6,}$/,
-      'Password must contain at least one uppercase letter, one number, and one special character (!@#$%^&*)'
-    ).required('Password is required'),
 });
 
 
-const LoginScreen = () => {
+const ForgotPassword = () => {
   const theme = useTheme();
   const { showToast } = useToast();
   const { login } = useAuth();
@@ -40,13 +35,13 @@ const LoginScreen = () => {
 
   const handleLogin = async (values, { setSubmitting }) => {
     try {
-      const response = await api.post('/auth/login', values);
-      const { token, id, ...userData } = response.data?.data;
+      const response = await api.post('/auth/forgotPassword', values);
+
+      const data = response.status;
       
-      const loginSuccess = await login(String(token), String(id), userData);
-      
-      if (loginSuccess) {
-        showToast(response.data?.message || 'Login successful', 'success');
+      if (data === 200) {
+        showToast(response.data?.message || 'Password reset was successful, kindly check your email to get your new passwords', 'success');
+        navigation.navigate('Login');
       }
 
     } catch (error) {
@@ -56,7 +51,7 @@ const LoginScreen = () => {
       // });
       showToast(
         error.response?.data?.message || error.response?.data?.errors[0].msg ||
-        error.message || 'Registration failed', 
+        error.message || 'Password Reset Failed', 
         'error'
       );
     } finally {
@@ -86,7 +81,7 @@ const LoginScreen = () => {
       style={styles.logoImg}
       animation={'fadeInDown'}/>
       
-      <Formik initialValues={{ email: '', password: '' }} validationSchema={LoginSchema} onSubmit={handleLogin}>
+      <Formik initialValues={{ email: ''}} validationSchema={LoginSchema} onSubmit={handleLogin}>
         {({ 
           handleChange, 
           handleBlur, 
@@ -97,8 +92,10 @@ const LoginScreen = () => {
           isSubmitting 
         }) => (
           <Animatable.View style={styles.formContainer} animation={'fadeInUp'}>
-            <Text style={[styles.title]}>Sign In</Text>
-            <Text style={[styles.subTitle]}>Log in to reconnect with your Mahjong community and find your next match.</Text>
+            <Text style={[styles.title]}>Forgot Your Password?</Text>
+            <Text style={[styles.subTitle]}>
+                Enter your registered email address, and we’ll send you a new password to log in with.
+            </Text>
 
             <View style={styles.inputContainer} animation={'fadeInUp'}>
               <Text style={[styles.inputLabel, (errors.email && touched.email) && styles.errorText]}>Email</Text>
@@ -125,35 +122,6 @@ const LoginScreen = () => {
               {errors.email && touched.email && (<Text style={styles.errorText}>{errors.email}</Text>)}
             </View>
 
-            <View style={styles.inputContainer} animation={'fadeInUp'}>
-              <Text style={[styles.inputLabel, (errors.password && touched.password) && styles.errorText]}>Password</Text>
-              <View style={styles.formGroup}>
-              <TextInput
-                style={[styles.input, 
-                  {borderColor: (errors.password && touched.password) ? COLORS.errText : 
-                    focusedInput === 'password' ? COLORS.redThemeColorTwo : 'transparent',
-                  backgroundColor: focusedInput === 'password' ? COLORS.whiteText : COLORS.inputBg
-                  }]}
-                placeholder="***"
-                placeholderTextColor={COLORS.redThemeColorTwo05}
-                selectionColor={COLORS.redThemeColorTwo + '80'}
-                value={values.password}
-                onChangeText={handleChange('password')}
-                onBlur={(e) => {
-                  handleBlur('password')(e);
-                  setFocusedInput(null);
-                }}
-                onFocus={() => setFocusedInput('password')}
-                secureTextEntry={!isVisible}
-              />
-              <TouchableOpacity style={styles.passwordTextBox} onPress={() => setIsVisible(!isVisible)} activeOpacity={0.8}>
-                <Text style={styles.passwordText}>{isVisible ? 'Hide' : 'Show'}</Text>
-              </TouchableOpacity>
-              </View>
-              {errors.password && touched.password && (<Text style={styles.errorText}>{errors.password}</Text>)}
-            </View>
-
-
             <Animatable.View animation={'fadeInUp'} delay={1000} style={styles.actionBox}>
 
             <TouchableOpacity style={[styles.button, isSubmitting && styles.buttonDisabled]}
@@ -165,8 +133,8 @@ const LoginScreen = () => {
               )}
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.forgotBtn} activeOpacity={0.8} onPress={() => navigation.navigate('ForgotPassword')}>
-              <Text style={styles.forgotText}>I've forgotten my password</Text>
+            <TouchableOpacity style={styles.forgotBtn} activeOpacity={0.8} onPress={() => navigation.navigate('Login')}>
+              <Text style={styles.forgotText}>Back to Login</Text>
             </TouchableOpacity>
 
             </Animatable.View>
@@ -345,4 +313,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default LoginScreen;
+export default ForgotPassword;

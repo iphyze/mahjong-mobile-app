@@ -11,7 +11,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faAngleRight, faSearch, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios'; // Import axios
 
-const CountryCodeBottomSheet = forwardRef(({ country_code, setCountryCode, snapTo, backDropColor, backgroundColor, ...rest}, ref) => {
+const CountryCodeBottomSheet = forwardRef(({ country_code, setCountryCode, setFieldValue, snapTo, backDropColor, backgroundColor, ...rest}, ref) => {
   const inset = useSafeAreaInsets();
   const {height} = Dimensions.get('screen');
   const percentage = parseFloat(snapTo.replace('%', '')) / 100;
@@ -54,13 +54,11 @@ const CountryCodeBottomSheet = forwardRef(({ country_code, setCountryCode, snapT
   }, []);
 
 
-  // console.log(countries);
-
   const handleCountryCodeSelect = (code) => {
-    // setNewData((prev) => ({ ...prev, code: code.phoneCode }));
     setCountryCode(code.phoneCode);
-    close();
+    setFieldValue('country_code', code.phoneCode);
     setSelectedOption(code.phoneCode);
+    close();
   };
 
   const handleSearchChange = (query) => {
@@ -168,21 +166,20 @@ const CountryCodeBottomSheet = forwardRef(({ country_code, setCountryCode, snapT
 
     return (
         <TouchableOpacity
-          style={[styles.countryItem, selectedOption === name && styles.selectedCountry]} onPress={() => handleCountryCodeSelect(item)} activeOpacity={0.8}>
+          style={[styles.countryItem, selectedOption === phoneCode && styles.selectedCountry]} onPress={() => handleCountryCodeSelect(item)} activeOpacity={0.8}>
           <Image source={{ uri: flag }} style={styles.flagIcon}/>
           
           <View style={styles.countryInfo}>
-            <Text style={[styles.countryText]}>
-              {name} - {countryCode}
+            <Text style={[styles.countryText, {color: (selectedOption === phoneCode) && COLORS.whiteText}]}>
+              ({phoneCode}) {name}
             </Text>
-            <Text style={[styles.phoneCode]}>
+            {/* <Text style={[styles.phoneCode]}>
                 ({phoneCode})
-            </Text>
+            </Text> */}
           </View>
 
-          <FontAwesomeIcon icon={faAngleRight} size={RFValue(11)} style={styles.rightAngle} color={theme === 'dark' ? 
-              selectedOption === name ? COLORS.whiteText : COLORS.darkText 
-              : selectedOption === name ? COLORS.whiteText : COLORS.darkText} />
+          <FontAwesomeIcon icon={faAngleRight} size={RFValue(11)} style={styles.rightAngle} 
+          color={selectedOption === phoneCode ? COLORS.whiteText : COLORS.redThemeColorTwo05} />
         </TouchableOpacity>
       );
     }, [selectedOption, handleCountryCodeSelect, styles, theme]);
@@ -217,13 +214,12 @@ const CountryCodeBottomSheet = forwardRef(({ country_code, setCountryCode, snapT
               placeholder="Search country..."
               value={searchQuery}
               onChangeText={handleSearchChange}
-              placeholderTextColor={COLORS.darkText}
-              selectionColor={COLORS.darkText}
+              placeholderTextColor={COLORS.searchInputLightText}
+              selectionColor={COLORS.searchInputText}
               onFocus={() => setFocusedField('countrySearch')}
             />
             <FontAwesomeIcon icon={faSearch} size={RFValue(14)}
-              color={theme === 'dark' ? focusedField === 'countrySearch'? COLORS.darkText : COLORS.whiteText
-              : focusedField === 'countrySearch' ? COLORS.darkText : COLORS.darkText } style={styles.searchIcon}
+              color={focusedField === 'countrySearch'? COLORS.searchInputText : COLORS.searchInputLightText} style={styles.searchIcon}
             />
 
             {focusedField === 'countrySearch' && searchQuery !== '' && (
@@ -236,7 +232,7 @@ const CountryCodeBottomSheet = forwardRef(({ country_code, setCountryCode, snapT
                 <FontAwesomeIcon
                   icon={faTimesCircle}
                   size={RFValue(14)}
-                  color={theme === 'dark' ? COLORS.darkText : COLORS.darkText}
+                  color={COLORS.searchInputText}
                 />
               </TouchableOpacity>
             )}
@@ -278,8 +274,8 @@ export default CountryCodeBottomSheet;
 const createStyles = (theme) => StyleSheet.create({
     container: {
       ...StyleSheet.absoluteFillObject,
-      borderTopLeftRadius: RFValue(40),
-      borderTopRightRadius: RFValue(40),
+      borderTopLeftRadius: RFValue(20),
+      borderTopRightRadius: RFValue(20),
       paddingHorizontal: RFValue(15),
       paddingVertical: RFValue(40),
     },
@@ -299,58 +295,49 @@ const createStyles = (theme) => StyleSheet.create({
     searchBox: {
       position: 'relative',
       width: '100%',
-      height: RFValue(35),
       marginBottom: RFValue(20),
-      borderRadius: 5,
+      flexDirection: 'row',
+      justifyContent: 'flex-start',
+      alignItems: 'center',
+      // borderRadius: 5,
     },
     searchInput: {
       position: 'relative',
       width: '100%',
-      height: '100%',
-      backgroundColor: COLORS.darkText,
-      borderRadius: 50,
+      backgroundColor: COLORS.whiteText,
+      borderRadius: RFValue(3),
       paddingHorizontal: RFValue(30),
+      paddingVertical: RFValue(15),
       fontSize: RFValue(10),
-      fontFamily: 'Montserrat-Regular',
-      color: COLORS.darkText,
+      fontFamily: 'Nunito-Regular',
+      color: COLORS.searchInputText,
       borderWidth: 1,
-      borderColor: COLORS.darkText,
+      borderColor: COLORS.searchInputBorderColor,
     },
     searchIcon: {
       position: 'absolute',
       left: RFValue(10),
-      top: RFValue(12),
     },
     closeIcon: {
       position: 'absolute',
       right: RFValue(10),
-      top: RFValue(12),
     },
     countrySelectText: {
       width: '100%',
       position: 'relative',
       fontSize: RFValue(12),
-      fontFamily: 'Montserrat-Medium',
+      fontFamily: 'Nunito-SemiBold',
       marginBottom: RFValue(10),
-      color: COLORS.darkText,
-      marginLeft: 10,
-    },
-    listContainer: {
-      position: 'relative',
-      width: '100%',
-      borderColor: 'red',
-      borderWidth: 1,
-      height: 100,
+      color: COLORS.searchInputText,
     },
     noResultsText: {
       position: 'relative',
-      marginTop: RFValue(20),
-      fontSize: RFValue(12),
+      fontSize: RFValue(10),
       color: COLORS.darkText,
-      fontFamily: 'Montserrat-Bold',
+      fontFamily: 'Nunito-Regular',
     },
     focused: {
-      borderColor: COLORS.darkText,
+      borderColor: COLORS.searchInputText,
     },
     countryItem: {
       position: 'relative',
@@ -359,11 +346,12 @@ const createStyles = (theme) => StyleSheet.create({
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'flex-start',
-      backgroundColor: COLORS.darkText,
+      backgroundColor: COLORS.inputBg,
       borderWidth: 1,
-      borderColor: COLORS.darkText,
-      padding: RFValue(12),
-      borderRadius: 5,
+      borderColor: COLORS.listBorderColor,
+      paddingHorizontal: RFValue(15),
+      paddingVertical: RFValue(15),
+      borderRadius: RFValue(3),
     },
     countryInfo: {
         position: 'relative',
@@ -373,9 +361,9 @@ const createStyles = (theme) => StyleSheet.create({
     countryText: {
       position: 'relative',
       width: '100%',
-      color: COLORS.darkText,
+      color: COLORS.redThemeColorTwo,
       fontSize: RFValue(10),
-      fontFamily: 'Montserrat-Medium',
+      fontFamily: 'Nunito-Regular',
     },
     rightAngle: {
       position: 'absolute',
@@ -383,20 +371,20 @@ const createStyles = (theme) => StyleSheet.create({
       right: RFValue(10),
     },
     selectedCountry: {
-      backgroundColor: COLORS.darkText,
+      backgroundColor: COLORS.redThemeColorTwo,
       color: COLORS.whiteText
     },
     flagIcon: {
       position: 'relative',
-      width: RFValue(18),
-      height: RFValue(18),
+      width: RFValue(20),
+      height: RFValue(20),
       borderRadius: RFValue(30),
     },
     phoneCode: {
         fontSize: RFValue(10),
         color: COLORS.darkText,
         marginRight: RFValue(10),
-        fontFamily: 'Montserrat-Regular',
+        fontFamily: 'Nunito-Regular',
         marginTop: RFValue(5)
     },
   });

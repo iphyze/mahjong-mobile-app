@@ -38,7 +38,7 @@ const RegisterSchema = Yup.object().shape({
     .max(15, 'Phone number must not exceed 15 digits')
     .required('Phone number is required'),
   country_code: Yup.string()
-    .matches(/^[0-9]+$/, 'Phone number must only contain digits')
+    .matches(/^\+?[0-9]+$/, 'Country code can only contain numbers and + symbol')
     .required('Country code is required'),
 });
 
@@ -54,7 +54,7 @@ const RegisterScreen = () => {
   const codebottomSheetRef = useRef(null);
   const [country_code, setCountryCode] = useState('');
 
-  const handleLogin = async (values, { setSubmitting }) => {
+  const handleRegister = async (values, { setSubmitting }) => {
     try {
       const response = await api.post('/auth/register', values);
       const data = response.data?.data;
@@ -62,7 +62,17 @@ const RegisterScreen = () => {
       if (data) {
         showToast(response.data?.message || 
           'Your registration successful, kindly confirm your email!', 'success');
-        navigation.navigate('EmailConfirmation', {data});
+        // navigation.navigate('EmailConfirmation', {data});
+
+        navigation.reset({
+          index: 0,
+          routes: [
+            {
+              name: 'EmailConfirmation',
+              params: { data },
+            },
+          ],
+        });
       }
 
     } catch (error) {
@@ -88,37 +98,27 @@ const RegisterScreen = () => {
   return (
     <KeyboardAvoidingView style={[styles.container]}>
       {/* <View style={styles.statusBar}></View> */}
-
-      <Animatable.View style={styles.iconImgBox} animation={'fadeInLeft'} delay={1000}>
-      <Image style={styles.iconImg} source={require('../../../assets/images/splash-icon-white.png')}/>
-      </Animatable.View>
-
-      <Animatable.View animation={'fadeInDown'} style={styles.headerBox}>
-
-        <TouchableOpacity style={styles.backBtnBox} onPress={() => navigation.goBack()}>
-          <FontAwesomeIcon icon={faLongArrowLeft} size={RFValue(14)} color={COLORS.authText}/>
-        </TouchableOpacity>
-
-        <Image source={require('../../../assets/images/splash-logo.png')} style={styles.logoImg}/>
-      </Animatable.View>
-
       
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{paddingBottom: RFValue(50), paddingTop: RFValue(20)}}>
-      {/* <View style={styles.statusBar}></View> */}
-
-
-      
-      <Formik initialValues={{firstName: '', lastName: '', email: '', password: '', confirmPassword: '', number: '', country_code: '' }} validationSchema={RegisterSchema} onSubmit={handleLogin}>
+      <Formik initialValues={{firstName: '', lastName: '', email: '', password: '', country_code: '', number: '' }} validationSchema={RegisterSchema} onSubmit={handleRegister}>
         {({ 
-          handleChange, 
-          handleBlur, 
-          handleSubmit, 
-          values, 
-          errors, 
-          touched, 
-          isSubmitting,
-          setFieldValue 
+          handleChange, handleBlur, handleSubmit, values, errors, touched, isSubmitting, setFieldValue 
         }) => (
+        <View style={[styles.innerContainer]}>
+
+        <Animatable.View style={styles.iconImgBox} animation={'fadeInLeft'} delay={1000}>
+        <Image style={styles.iconImg} source={require('../../../assets/images/splash-icon-white.png')}/>
+        </Animatable.View>
+
+        <Animatable.View animation={'fadeInDown'} style={styles.headerBox}>
+
+          <TouchableOpacity style={styles.backBtnBox} onPress={() => navigation.goBack()}>
+            <FontAwesomeIcon icon={faLongArrowLeft} size={RFValue(14)} color={COLORS.authText}/>
+          </TouchableOpacity>
+
+          <Image source={require('../../../assets/images/splash-logo.png')} style={styles.logoImg}/>
+        </Animatable.View>
+
+          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{paddingBottom: RFValue(50), paddingTop: RFValue(20)}}>
           <Animatable.View style={styles.formContainer} animation={'fadeInUp'}>
             <Text style={[styles.title]}>Create Account</Text>
             <Text style={[styles.subTitle]}>Sign up to join the fasted growing Mahjong community</Text>
@@ -317,19 +317,21 @@ const RegisterScreen = () => {
             </Animatable.View>
             
           </Animatable.View>
+          </ScrollView>
+
+          <CountryCodeBottomSheet
+            ref={codebottomSheetRef}
+            snapTo={'80%'}
+            backgroundColor={COLORS.whiteText}
+            backDropColor={'black'}
+            style={{ zIndex: 1000 }}
+            country_code={country_code}
+            setCountryCode={setCountryCode}
+            setFieldValue={setFieldValue}
+          />
+          </View>
         )}
       </Formik>
-      </ScrollView>
-
-      <CountryCodeBottomSheet
-          ref={codebottomSheetRef}
-          snapTo={'90%'}
-          backgroundColor={COLORS.whiteText}
-          backDropColor={'black'}
-          style={{ zIndex: 1000 }}
-          country_code={country_code}
-          setCountryCode={setCountryCode}
-        />
     </KeyboardAvoidingView>
   );
 };
@@ -339,6 +341,13 @@ const styles = StyleSheet.create({
     flex: 1,
     width: width,
     height: height,
+    overflow: 'hidden',
+    backgroundColor: COLORS.whiteText
+  },
+  innerContainer: {
+    position: 'relative',
+    width: '100%',
+    height: '100%',
     overflow: 'hidden',
     backgroundColor: COLORS.whiteText
   },

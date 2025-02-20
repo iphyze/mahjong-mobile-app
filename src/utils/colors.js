@@ -15,4 +15,9 @@ export const COLORS = {
     infoText: '#0288d1',
     authText: '#47584b',    
     inputBg: '#fbf3f4',    
+    searchInputBorderColor: '#b7ccba',    
+    searchInputBg: '#f9fef9',    
+    searchInputText: '#334633',    
+    searchInputLightText: '#7d8f7d',    
+    listBorderColor: '#f8dade',    
 };

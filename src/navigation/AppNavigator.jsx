@@ -11,10 +11,12 @@ import { NavigationContainer } from '@react-navigation/native';
 import { COLORS } from '../utils/colors';
 import RegisterScreen from '../screens/authScreens/RegisterScreen';
 import { createStackNavigator } from '@react-navigation/stack';
+import EmailConfirmationScreen from '../screens/authScreens/EmailConfirmationScreen';
+import ForgotPassword from '../screens/authScreens/ForgotPassword';
 
 
-const Stack = createNativeStackNavigator();
-// const Stack = createStackNavigator();
+// const Stack = createNativeStackNavigator();
+const Stack = createStackNavigator();
 
 export default function AppNavigator() {
   const theme = useTheme();
@@ -43,6 +45,8 @@ export default function AppNavigator() {
             <Stack.Group>
               <Stack.Screen name="Login" component={LoginScreen} />
               <Stack.Screen name="Register" component={RegisterScreen} />
+              <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
+              <Stack.Screen name="EmailConfirmation" component={EmailConfirmationScreen} />
             </Stack.Group>
           ) : (
             // Protected Stack for authenticated users

@@ -65,7 +65,7 @@ export const AuthProvider = ({ children }) => {
   };
   
   const checkAuthStatus = async () => {
-    // await AsyncStorage.cnlear();
+    // await AsyncStorage.clear();
 
     try {
       const isOnboarded = await checkOnboardingStatus();
