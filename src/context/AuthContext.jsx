@@ -17,11 +17,12 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }) => {
-  // const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [hasOnboarded, setHasOnboarded] = useState(false);
-  const [user, setUser] = useState(null); // Changed from [] to null for better type safety
+  const [user, setUser] = useState(null);
   const { showToast } = useToast();
+  const [authToken, setAuthToken] = useState(null)
 
 
   // Check if user has completed onboarding
@@ -52,13 +53,13 @@ export const AuthProvider = ({ children }) => {
         // console.log('User data set:', response.data?.data); // Debug log
         return true;
       }else{
-        showToast('Please login again!', 'error'); // Debug log
+        showToast(error.response?.data || error.message || 'Session expired please login first!', 'error'); // Debug log
         setUser(null);
         return false;
       }
     } catch (error) {
       console.error('User status check error:', error.response?.data || error.message); // Enhanced error log
-      showToast('Please login again!', 'error');
+      showToast(error.response?.data || error.message || 'Session expired please login first!', 'error');
       setUser(null);
       return false;
     }
@@ -66,6 +67,7 @@ export const AuthProvider = ({ children }) => {
   
   const checkAuthStatus = async () => {
     // await AsyncStorage.clear();
+    // await clearNotificationSettings();
 
     try {
       const isOnboarded = await checkOnboardingStatus();
@@ -81,6 +83,7 @@ export const AuthProvider = ({ children }) => {
   
       if (token && userId) {
         // Validate stored credentials
+        setAuthToken(token); // Set the token in state
         const isValidUser = await checkUserStatus(userId, token);
         if (isValidUser) {
           setIsAuthenticated(true);
@@ -94,16 +97,53 @@ export const AuthProvider = ({ children }) => {
       console.error('Auth check error:', error);
       await logout();
     } finally {
-      // setIsLoading(false);
+      setIsLoading(false);
     }
   };
 
+
+  const clearNotificationSettings = async (userId, token) => {
+    try {
+      // Clear AsyncStorage
+      await AsyncStorage.removeItem('hasPromptedForNotifications');
+      
+      // Clear push token from database
+      await api.post('/users/notifications/update-push-token', 
+        { 
+          userId: userId,
+          expoPushToken: null 
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+  
+      // Reset local notification state
+      set({ 
+        isEnabled: false, 
+        expoPushToken: null 
+      });
+  
+      // Optionally, you can also reset notification permissions
+      // Note: On iOS, you cannot programmatically reset permissions
+      if (Platform.OS === 'android') {
+        await Notifications.dismissAllNotificationsAsync();
+        await Notifications.cancelAllScheduledNotificationsAsync();
+      }
+  
+    } catch (error) {
+      console.error('Error clearing notification settings:', error);
+    }
+  };
 
   const login = async (token, userId, userData) => {
     try {
       // console.log('Storing token and userId:', { token, userId });
       await AsyncStorage.setItem('token', String(token));
       await AsyncStorage.setItem('userId', String(userId));
+      setAuthToken(token); // Set the token in state
       setUser(userData);
       setIsAuthenticated(true);
       return true;
@@ -119,6 +159,7 @@ export const AuthProvider = ({ children }) => {
     try {
       await AsyncStorage.multiRemove(['token', 'userId']);
       setUser(null);
+      setAuthToken(null); // Set the token in state
       setIsAuthenticated(false);
     } catch (error) {
       console.error('Logout error:', error);
@@ -131,6 +172,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const userId = await AsyncStorage.getItem('userId');
       const token = await AsyncStorage.getItem('token');
+      setAuthToken(token); // Set the token in state
       if (userId && token) {
         await checkUserStatus(userId, token);
       }
@@ -167,14 +209,16 @@ export const AuthProvider = ({ children }) => {
   return (
     <AuthContext.Provider 
       value={{ 
-        // isLoading,
+        isLoading,
         isAuthenticated,
         hasOnboarded,
         user,
+        token: authToken,
         login,
         logout,
         completeOnboarding,
-        checkAuthStatus
+        checkAuthStatus,
+        updateUserData
       }}
     >
       {children}

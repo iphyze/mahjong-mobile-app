@@ -18,10 +18,8 @@ const SplashScreen = () => {
 
   useEffect(() => {
     const initializeApp = async () => {
-      // Set timer for transition
       setTimeout(() => {
         setTransition(true);
-        // Small delay before showing second screen for smooth transition
         setTimeout(() => {
           setShowSecondScreen(true);
         }, 100);
@@ -29,7 +27,7 @@ const SplashScreen = () => {
       // }, 500000);
 
       
-      // await new Promise(resolve => setTimeout(resolve, 10000));
+      await new Promise(resolve => setTimeout(resolve, 10000));
       // await checkAuthStatus();
     };
 

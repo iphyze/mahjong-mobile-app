@@ -1,26 +1,30 @@
 import React, { useEffect } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useTheme } from '../components/common/ThemeProvider';
-import HomeScreen from '../screens/HomeScreen';
-import AppointmentScreen from '../screens/AppointmentScreen';
-import ProfileScreen from '../screens/ProfileScreen';
+import HomeScreen from '../screens/mainScreens/HomeScreen';
+import HistoryScreen from '../screens/mainScreens/HistoryScreen';
+import ProfileScreen from '../screens/mainScreens/ProfileScreen';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useColorScheme, Platform, Pressable } from 'react-native';
+import { COLORS } from '../utils/colors';
+import { RFValue } from 'react-native-responsive-fontsize';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faCog, faGamepad, faHistory, faHome, faHomeAlt, faTimeline, faUser } from '@fortawesome/free-solid-svg-icons';
 
 const Tab = createBottomTabNavigator();
 
 const TAB_CONFIG = {
   Home: {
     component: HomeScreen,
-    iconName: 'home'
+    iconName: faHomeAlt
   },
-  Appointments: {
-    component: AppointmentScreen,
-    iconName: 'calendar'
+  History: {
+    component: HistoryScreen,
+    iconName: faGamepad
   },
-  Profile: {
+  Settings: {
     component: ProfileScreen,
-    iconName: 'user'
+    iconName: faCog
   }
 };
 
@@ -59,21 +63,22 @@ export default function BottomTabNavigator() {
   const screenOptions = {
     headerShown: false,
     tabBarStyle: {
-      backgroundColor: theme.background,
-      height: 80,
-      paddingBottom: 10,
-      paddingTop: 10,
+      backgroundColor: COLORS.inputBg,
+      height: RFValue(70),
+      paddingBottom: RFValue(5),
+      paddingTop: RFValue(5),
       ...getShadowStyle(),
     },
-    tabBarActiveTintColor: theme.primary,
-    tabBarInactiveTintColor: theme.text,
+    tabBarActiveTintColor: COLORS.redThemeColorOne,
+    tabBarInactiveTintColor: COLORS.redThemeColorTwo05,
     tabBarLabelStyle: {
-      fontSize: 12,
-      marginTop: 3,
-      marginBottom: 5,
+      fontSize: RFValue(10),
+      fontFamily: 'Nunito-SemiBold',
+      marginTop: RFValue(1),
+      marginBottom: RFValue(2),
     },
     tabBarIconStyle: {
-      marginTop: 2,
+      marginTop: RFValue(1),
     },
     // Use custom tab button
     tabBarButton: (props) => <CustomTabButton {...props} />,
@@ -82,7 +87,7 @@ export default function BottomTabNavigator() {
   useEffect(() => {
     const updatedStyle = {
       ...screenOptions.tabBarStyle,
-      backgroundColor: theme.background,
+      backgroundColor: COLORS.inputBg,
       ...getShadowStyle(),
     };
     screenOptions.tabBarStyle = updatedStyle;
@@ -91,13 +96,10 @@ export default function BottomTabNavigator() {
   return (
     <Tab.Navigator screenOptions={screenOptions}>
       {Object.entries(TAB_CONFIG).map(([name, { component, iconName }]) => (
-        <Tab.Screen
-          key={name}
-          name={name}
-          component={component}
+        <Tab.Screen key={name} name={name} component={component}
           options={{
             tabBarIcon: ({ color, size }) => (
-              <FontAwesome name={iconName} size={20} color={color} />
+              <FontAwesomeIcon icon={iconName} size={20} color={color} />
             ),
           }}
         />

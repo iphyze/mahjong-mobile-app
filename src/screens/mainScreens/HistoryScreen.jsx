@@ -1,11 +1,9 @@
-//src/screens/HomeScreen.jsx
+//src/screens/HistoryScreen.jsx
 
 import React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
-import { useAuth } from '../context/AuthContext';
 
-const HomeScreen = () => {
-  const {user} = useAuth();
+const HistoryScreen = () => {
 
   return(
     <View style={styles.container}>
@@ -26,4 +24,4 @@ const styles = StyleSheet.create({
 
 });
 
-export default HomeScreen;
+export default HistoryScreen;
