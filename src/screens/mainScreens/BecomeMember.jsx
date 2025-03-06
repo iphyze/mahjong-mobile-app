@@ -8,12 +8,14 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faBell, faGamepad, faLock } from '@fortawesome/free-solid-svg-icons';
 import * as Animatable from 'react-native-animatable'
+import { useNavigation } from '@react-navigation/native';
 
 const { width, height } = Dimensions.get('window');
 const windowHeight = Dimensions.get('screen').height;
 
 const BecomeMember = ({show, setShow}) => {
   const {user} = useAuth();
+  const navigation = useNavigation();
 
   const data = {
     name: `${user?.firstName + ' ' + user?.lastName}` || 'John Doe',
@@ -29,7 +31,7 @@ const BecomeMember = ({show, setShow}) => {
         <Animatable.Text animation={'fadeInDown'} delay={1000} style={[styles.name, styles.nameTwo]}>{data?.name}</Animatable.Text>
         <Animatable.Text animation={'fadeInDown'} delay={1000} style={[styles.username, styles.username]}>@{data?.username}</Animatable.Text>
         <Animatable.View style={styles.becomeBtnBox} animation={'fadeInUp'} delay={1000}>
-            <TouchableOpacity style={styles.becomeBtn} onPress={() => setShow(!show)}>
+            <TouchableOpacity style={styles.becomeBtn} onPress={() => navigation.navigate('MembershipPayment')}>
                 <Text style={styles.becomeTxt}>Become a member</Text>
             </TouchableOpacity>
         </Animatable.View>

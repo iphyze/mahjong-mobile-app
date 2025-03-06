@@ -81,9 +81,9 @@ export const useAppNotificationStore = create((set, get) => {
 
             if (!userId || !authToken) return false;
 
-            const response = await api.post(
+            const response = await api.patch(
                 '/users/notifications/status',
-                { notificationId, userId },
+                { notificationId: String(notificationId), userId: String(userId) },
                 {
                     headers: {
                         'Authorization': `Bearer ${authToken}`

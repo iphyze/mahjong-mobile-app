@@ -4,6 +4,30 @@ import * as Device from 'expo-device';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import api from '../services/api';
 import { useAppNotificationStore } from './appNotificationStore';
+import * as Constants from 'expo-constants';
+
+
+
+// Enhanced token management functions
+const registerDeviceToken = async () => {
+    if (!Device.isDevice) return null;
+    
+    try {
+        const token = await Notifications.getExpoPushTokenAsync({
+            projectId: Constants.expoConfig?.extra?.eas?.projectId || "95bbb45e-1d9b-4fba-9679-f193bc2cf8d8",
+        });
+        
+        if (token?.data) {
+            await AsyncStorage.setItem('expoPushToken', token.data);
+            return token.data;
+        }
+        return null;
+    } catch (error) {
+        console.error('Error registering device token:', error);
+        return null;
+    }
+};
+
 
 export const useNotificationStore = create((set, get) => ({
     isEnabled: false,
@@ -61,14 +85,19 @@ export const useNotificationStore = create((set, get) => ({
     },
 
 
+    // Enhanced getExpoPushToken with better error handling
     getExpoPushToken: async () => {
         if (!Device.isDevice) return null;
         
         try {
-            const token = await Notifications.getExpoPushTokenAsync({
-                projectId: "95bbb45e-1d9b-4fba-9679-f193bc2cf8d8",
-            });
-            return token.data;
+            // First try to get cached token
+            const cachedToken = await AsyncStorage.getItem('expoPushToken');
+            if (cachedToken) {
+                return cachedToken;
+            }
+
+            // If no cached token, register new one
+            return await registerDeviceToken();
         } catch (error) {
             console.error('Error getting push token:', error);
             return null;
@@ -90,6 +119,10 @@ export const useNotificationStore = create((set, get) => ({
                     const { status } = await Notifications.getPermissionsAsync();
                     if (status === 'granted') {
                         token = await get().getExpoPushToken();
+                        // Ensure token is updated on server
+                        if (token) {
+                            await get().updateServerWithToken(token);
+                        }
                     }
                 }
                 
@@ -99,7 +132,6 @@ export const useNotificationStore = create((set, get) => ({
                 });
             }
 
-            // Configure basic notification handling without navigation
             await get().configureNotifications();
 
         } catch (error) {
@@ -120,29 +152,37 @@ export const useNotificationStore = create((set, get) => ({
         });
     },
 
-    updateServerWithToken: async (token, enabled) => {
+    // Enhanced updateServerWithToken with retry logic
+    updateServerWithToken: async (token) => {
         try {
             const userId = await AsyncStorage.getItem('userId');
             const authToken = await AsyncStorage.getItem('token');
             
-            if (userId && authToken) {
-                await api.post('/users/notifications/update-push-token', 
-                    {
-                        userId, 
-                        expoPushToken: token,
-                        notificationsEnabled: enabled
-                    },
-                    {
-                        headers: {
-                            'Authorization': `Bearer ${authToken}`
-                        }
-                    },
-                );
+            if (!userId || !authToken || !token) {
+                console.log('Missing required data for token update');
+                return false;
+            }
+
+            const response = await api.post('/users/notifications/update-push-token', 
+                {
+                    userId, 
+                    expoPushToken: token,
+                },
+                {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+
+            if (response.status === 200) {
+                await AsyncStorage.setItem('expoPushToken', token);
                 return true;
             }
             return false;
         } catch (error) {
-            console.error('Error updating server with notification preferences:', error);
+            console.error('Error updating server with token:', error);
             return false;
         }
     },
@@ -220,5 +260,18 @@ export const useNotificationStore = create((set, get) => ({
             console.error('Error toggling notifications:', error);
             return false;
         }
-    }
+    },
+
 }));
+
+// Set up periodic token refresh
+const TWELVE_HOURS = 12 * 60 * 60 * 1000;
+setInterval(async () => {
+    const store = useNotificationStore.getState();
+    if (store.isEnabled) {
+        const token = await registerDeviceToken();
+        if (token) {
+            await store.updateServerWithToken(token);
+        }
+    }
+}, TWELVE_HOURS);

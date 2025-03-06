@@ -1,7 +1,7 @@
 //src/screens/HomeScreen.jsx
 
 import React, { useState, useEffect } from 'react';
-import {View, Text, StyleSheet, Dimensions, ScrollView, Image, Platform, StatusBar, TouchableOpacity, ImageBackground} from 'react-native';
+import {View, Text, StyleSheet, Dimensions, ScrollView, Image, Platform, StatusBar, TouchableOpacity, ImageBackground, RefreshControl} from 'react-native';
 import { useAuth } from '../../context/AuthContext';
 import { COLORS } from '../../utils/colors';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -13,15 +13,19 @@ import { BlurView } from 'expo-blur';
 import BecomeMember from './BecomeMember';
 import RecentMatchHistory from './RecentMatchHistory';
 import { useAppNotificationStore } from '../../store/appNotificationStore';
+import { useNavigation } from '@react-navigation/native';
 
 
 const { width, height } = Dimensions.get('window');
 const windowHeight = Dimensions.get('screen').height;
 
 const HomeScreen = () => {
-  const {user} = useAuth();
+  const {user, updateUserData} = useAuth();
   const [show, setShow] = useState(true);
   const { userNotifications, error, fetchUsersNotification, loading} = useAppNotificationStore();
+  const navigation = useNavigation();
+  const membershipPaymentStatus = user?.payments?.membership?.membershipPayment || false;
+  const [refreshing, setRefreshing] = useState(false);
   
   // console.log(userNotifications);
 
@@ -31,6 +35,21 @@ const HomeScreen = () => {
     username: user?.userName || 'janedoe'
   }
 
+  const onRefresh = React.useCallback(async () => {
+    setRefreshing(true);
+    try {
+      // Run all refresh functions in parallel
+      await Promise.all([
+        updateUserData(),
+        fetchUsersNotification()
+      ]);
+    } catch (error) {
+      console.error('Refresh error:', error);
+    } finally {
+      setRefreshing(false);
+    }
+  }, [checkAuthStatus, fetchUsersNotification]);
+
   // console.log(user);
 
   return(
@@ -39,9 +58,10 @@ const HomeScreen = () => {
       <View style={styles.topBox}>
         <LinearGradient colors={[COLORS.redThemeColorOne, COLORS.redThemeColorTwo]} style={styles.gradBox}>
         <View style={styles.statusBar}></View>
-        <TouchableOpacity style={styles.bellBtnBox}>
+        <TouchableOpacity style={styles.bellBtnBox} onPress={() => navigation.navigate('Notifications')}>
             {
-            userNotifications && userNotifications.length > 0 && <FontAwesomeIcon icon={faCircle} 
+            userNotifications && 
+            userNotifications.some(notification => notification.isRead === 0) && <FontAwesomeIcon icon={faCircle} 
             color={'red'} size={RFValue(7)} style={styles.noticeBall}/>}
             <FontAwesomeIcon icon={faBell} size={RFValue(16)} color={COLORS.whiteText}/>
         </TouchableOpacity>
@@ -53,8 +73,22 @@ const HomeScreen = () => {
       <View style={styles.bottomBox}> 
           <Image source={require('../../../assets/images/splash-icon-white.png')} style={styles.logoIcon}/>
 
-          <ScrollView showsVerticalScrollIndicator={false} horizontal={false} contentContainerStyle={{paddingBottom: height * 0.25, 
-            paddingTop: height * 0.08, paddingHorizontal: width * 0.06}}>
+          <ScrollView 
+          showsVerticalScrollIndicator={false} 
+          horizontal={false} 
+          contentContainerStyle={{paddingBottom: height * 0.25, 
+            paddingTop: height * 0.08, paddingHorizontal: width * 0.06}}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                colors={[COLORS.redThemeColorOne]} // Android
+                tintColor={COLORS.redThemeColorOne} // iOS
+                title="Pull to refresh" // iOS
+                titleColor={COLORS.redThemeColorOne} // iOS
+              />
+            }
+            >
               <Animatable.Text animation={'fadeInUp'} delay={1000} style={styles.name}>{data?.name}</Animatable.Text>
               <Animatable.Text animation={'fadeInUp'} delay={1000} style={styles.username}>@{data?.username}</Animatable.Text>
 
@@ -123,7 +157,7 @@ const HomeScreen = () => {
           </ScrollView>
 
 
-          {show && <BecomeMember setShow={setShow} show={show}/>}
+          {membershipPaymentStatus !== 'successful' && <BecomeMember/>}
 
       </View>
     </View>
@@ -226,6 +260,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     alignItems: 'center',
     borderRadius: RFValue(20),
+    backgroundColor: COLORS.whiteText
   },
   matchColOne: {
     position: 'relative',

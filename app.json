@@ -13,21 +13,47 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "UIBackgroundModes": [
+          "remote-notification"
+        ]
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/icon-logo.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.iphyze.mahjong"
+      "package": "com.iphyze.mahjong",
+      "googleServicesFile": "./google-services.json",
+      "permissions": [
+        "NOTIFICATIONS",
+        "RECEIVE_BOOT_COMPLETED",
+        "VIBRATE",
+        "POST_NOTIFICATIONS"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
       "expo-router",
-      "expo-font"
+      "expo-font",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/icon-logo.png",
+          "color": "#ffffff",
+          "androidCollapsedTitle": "New notification from Mahjong",
+          "iosDisplayInForeground": true,
+          "androidImportance": "max",
+          "androidShowBadge": true,
+          "androidChannelId": "default",
+          "androidChannelName": "Default",
+          "androidChannelDescription": "Default notifications channel"
+        }
+      ]
     ],
     "extra": {
       "router": {

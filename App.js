@@ -11,11 +11,14 @@ import * as Font from 'expo-font';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { COLORS } from './src/utils/colors';
 import { enableScreens } from 'react-native-screens';
+import { LogBox } from 'react-native';
 
 enableScreens();
 
+
 const App = () => {
   const [appIsReady, setAppIsReady] = useState(false);
+  
 
   useEffect(() => {
     async function prepare() {

@@ -17,15 +17,19 @@ import SplashScreen from '../screens/SplashScreen';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNotificationStore } from '../store/notificationStore';
+import NotificationSettingsScreen from '../screens/mainScreens/NotificationSettingsScreen';
+import Notifications from '../screens/mainScreens/Notifications';
+import ChangePasswordScreen from '../screens/mainScreens/ChangePasswordScreen';
+import MembershipPaymentScreen from '../screens/mainScreens/paymentScreens/MembershipPaymentScreen';
 
 
 
-const Stack = createNativeStackNavigator();
-// const Stack = createStackNavigator();
+// const Stack = createNativeStackNavigator();
+const Stack = createStackNavigator();
 
 export default function AppNavigator() {
   const theme = useTheme();
-  const { isAuthenticated, hasOnboarded, user, isLoading } = useAuth();
+  const { isAuthenticated, hasOnboarded, user, isLoading, checkOnboardingStatus, checkAuthStatus } = useAuth();
   const isEmailVerified = user?.isEmailVerified || false;
   const [isSplashVisible, setIsSplashVisible] = useState(true);
   const { initializeNotifications, cleanup } = useNotificationStore();
@@ -51,6 +55,9 @@ export default function AppNavigator() {
         // Wait for splash screen
         await new Promise(resolve => setTimeout(resolve, 10000));
         setIsSplashVisible(false);
+
+        await checkOnboardingStatus();
+        await checkAuthStatus();
 
         // Initialize notifications after splash screen
         await initializeNotifications();
@@ -94,7 +101,12 @@ export default function AppNavigator() {
         ) : (
           <Stack.Group>
             <Stack.Screen name="Main" component={BottomTabNavigator} />
-            <Stack.Screen name="ThemeAppearanceScreen" component={ThemeAppearanceScreen}/>
+            <Stack.Screen name="NotificationSettings" component={NotificationSettingsScreen} />
+            <Stack.Screen name="Notifications" component={Notifications} />
+            <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} />
+            <Stack.Screen name="MembershipPayment" component={MembershipPaymentScreen} />
+            {/* <Stack.Screen name="ThemeAppearanceScreen" component={ThemeAppearanceScreen}/> */}
+
           </Stack.Group>
         )}
       </Stack.Navigator>

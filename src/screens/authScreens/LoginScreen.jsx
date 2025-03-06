@@ -13,6 +13,7 @@ import { FontAwesome } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faArrowCircleRight } from '@fortawesome/free-solid-svg-icons';
+import { useAppNotificationStore } from '../../store/appNotificationStore';
 
 const { width, height } = Dimensions.get('window');
 const windowHeight = Dimensions.get('screen').height;
@@ -37,6 +38,7 @@ const LoginScreen = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [focusedInput, setFocusedInput] = useState(null);
   const navigation = useNavigation();
+  const { fetchUsersNotification, loading} = useAppNotificationStore();
 
   const handleLogin = async (values, { setSubmitting }) => {
     try {
@@ -44,6 +46,7 @@ const LoginScreen = () => {
       const { token, id, ...userData } = response.data?.data;
       
       const loginSuccess = await login(String(token), String(id), userData);
+      await fetchUsersNotification();
       
       if (loginSuccess) {
         showToast(response.data?.message || 'Login successful', 'success');

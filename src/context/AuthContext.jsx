@@ -53,13 +53,26 @@ export const AuthProvider = ({ children }) => {
         // console.log('User data set:', response.data?.data); // Debug log
         return true;
       }else{
-        showToast(error.response?.data || error.message || 'Session expired please login first!', 'error'); // Debug log
+        showToast(response.data?.message || 'Session expired please login first!', 'error'); // Debug log
         setUser(null);
         return false;
       }
     } catch (error) {
-      console.error('User status check error:', error.response?.data || error.message); // Enhanced error log
-      showToast(error.response?.data || error.message || 'Session expired please login first!', 'error');
+
+      if (error.response?.status === 401) {
+        showToast(error.response.data.message || 'Session expired please login first!', 'error');
+        // You might want to redirect to login here
+        await AsyncStorage.clear(); // Clear stored credentials
+        setUser(null);
+        return false;
+    }
+
+      // Handle other errors
+      const errorMessage = error.response?.data?.message || 
+      error.message || 'Session expired please login first!';
+
+      console.error('User status check error:', error.response?.data || error.message || 'Session expired please login first!'); // Enhanced error log
+      showToast(errorMessage, 'error');
       setUser(null);
       return false;
     }
@@ -94,7 +107,7 @@ export const AuthProvider = ({ children }) => {
       }
       setIsAuthenticated(false);
     } catch (error) {
-      console.error('Auth check error:', error);
+      // console.error('Auth check error:', error);
       await logout();
     } finally {
       setIsLoading(false);
@@ -102,41 +115,6 @@ export const AuthProvider = ({ children }) => {
   };
 
 
-  const clearNotificationSettings = async (userId, token) => {
-    try {
-      // Clear AsyncStorage
-      await AsyncStorage.removeItem('hasPromptedForNotifications');
-      
-      // Clear push token from database
-      await api.post('/users/notifications/update-push-token', 
-        { 
-          userId: userId,
-          expoPushToken: null 
-        },
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        }
-      );
-  
-      // Reset local notification state
-      set({ 
-        isEnabled: false, 
-        expoPushToken: null 
-      });
-  
-      // Optionally, you can also reset notification permissions
-      // Note: On iOS, you cannot programmatically reset permissions
-      if (Platform.OS === 'android') {
-        await Notifications.dismissAllNotificationsAsync();
-        await Notifications.cancelAllScheduledNotificationsAsync();
-      }
-  
-    } catch (error) {
-      console.error('Error clearing notification settings:', error);
-    }
-  };
 
   const login = async (token, userId, userData) => {
     try {
@@ -193,17 +171,12 @@ export const AuthProvider = ({ children }) => {
 
 
   // useEffect(() => {
-  //   checkAuthStatus();
-  //   checkOnboardingStatus();
+  //   const initializeApp = async () => {
+  //     await checkOnboardingStatus();
+  //     await checkAuthStatus(); 
+  //   }
+  //   initializeApp();
   // }, []);
-
-  useEffect(() => {
-    const initializeApp = async () => {
-      await checkOnboardingStatus();
-      await checkAuthStatus(); 
-    }
-    initializeApp();
-  }, []);
 
 
   return (
@@ -218,7 +191,9 @@ export const AuthProvider = ({ children }) => {
         logout,
         completeOnboarding,
         checkAuthStatus,
-        updateUserData
+        checkUserStatus,
+        updateUserData,
+        checkOnboardingStatus
       }}
     >
       {children}

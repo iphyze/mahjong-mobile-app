@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "235884079620",
+    "project_id": "mahjong-862ee",
+    "storage_bucket": "mahjong-862ee.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:235884079620:android:ff127408f9827235fa2351",
+        "android_client_info": {
+          "package_name": "com.iphyze.mahjong"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCCZeJN3RS06GwEN-_39ldve20TOjvjnok"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

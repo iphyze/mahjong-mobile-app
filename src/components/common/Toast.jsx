@@ -124,7 +124,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 0,
     top: 0,
-    height: RFValue(50),
+    height: RFValue(1000),
     width: RFValue(5)
   },
   successLine: {
