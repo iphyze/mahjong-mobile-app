@@ -12,12 +12,27 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { COLORS } from './src/utils/colors';
 import { enableScreens } from 'react-native-screens';
 import { LogBox } from 'react-native';
+import SplashScreen from './src/screens/SplashScreen';
 
 enableScreens();
 
 
 const App = () => {
   const [appIsReady, setAppIsReady] = useState(false);
+  const [isSplashVisible, setIsSplashVisible] = useState(true);
+
+
+  useEffect(() => {
+    const setup = async () => {
+      await new Promise(resolve => setTimeout(resolve, 10000));
+      setIsSplashVisible(false);
+    };
+  
+    setup();
+  
+    return () => {}; // ✅ Empty cleanup function
+  }, []);
+  
   
 
   useEffect(() => {
@@ -50,7 +65,7 @@ const App = () => {
         <ToastProvider>
           <AuthProvider>
             <GestureHandlerRootView style={styles.container}>
-              <AppNavigator />
+              {isSplashVisible ? <SplashScreen /> : <AppNavigator />}
             </GestureHandlerRootView>
           </AuthProvider>
         </ToastProvider>

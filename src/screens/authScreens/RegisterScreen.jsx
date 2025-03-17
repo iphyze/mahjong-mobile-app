@@ -96,7 +96,7 @@ const RegisterScreen = () => {
 
 
   return (
-    <KeyboardAvoidingView style={[styles.container]}>
+    <View style={[styles.container]}>
       {/* <View style={styles.statusBar}></View> */}
       
       <Formik initialValues={{firstName: '', lastName: '', email: '', password: '', country_code: '', number: '' }} validationSchema={RegisterSchema} onSubmit={handleRegister}>
@@ -332,7 +332,7 @@ const RegisterScreen = () => {
           </View>
         )}
       </Formik>
-    </KeyboardAvoidingView>
+    </View>
   );
 };
 

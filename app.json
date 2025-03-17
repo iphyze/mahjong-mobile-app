@@ -61,6 +61,10 @@
       },
       "eas": {
         "projectId": "95bbb45e-1d9b-4fba-9679-f193bc2cf8d8"
+      },
+      "flutterwaveSecretKey": {
+        "development": "FLWSECK_TEST-58b21921106ed2876ca416b9529051ce-X",
+        "production": "FLWSECK_TEST-58b21921106ed2876ca416b9529051ce-X"
       }
     },
     "owner": "iphyze"

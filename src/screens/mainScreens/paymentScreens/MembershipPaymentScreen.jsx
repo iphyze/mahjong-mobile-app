@@ -8,7 +8,7 @@ import { COLORS } from '../../../utils/colors';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { useNavigation } from '@react-navigation/native';
 import { useToast } from '../../../context/ToastContext';
-import Constants from 'expo-constants';
+import { getFlutterwaveKey } from '../../../utils/config';
 import * as Animatable from 'react-native-animatable';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faArrowLeftLong, faCalendar, faCalendarAlt, faEnvelope, faPaperPlane, faPhone, faUserCircle, faUsers } from '@fortawesome/free-solid-svg-icons';
@@ -31,7 +31,7 @@ const MembershipPaymentScreen = () => {
   const navigation = useNavigation();
   const { showToast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { userNotifications, error, fetchUsersNotification, loading, markAsRead} = useAppNotificationStore();
+  const { fetchUsersNotification, loading} = useAppNotificationStore();
 
   // Sanitize and validate customer information
   const sanitizeCustomerInfo = () => {
@@ -71,7 +71,6 @@ const MembershipPaymentScreen = () => {
 
       const { email, phoneNumber, name, amount } = sanitizeCustomerInfo();
 
-      // Construct payment configuration with validated fields
       const flutterwaveConfig = {
         tx_ref: `tx-${Date.now()}`,
         amount: String(amount),
@@ -90,47 +89,29 @@ const MembershipPaymentScreen = () => {
         no_notification: true
       };
 
-      // Log the full payload for debugging
-      // console.log('Payload being sent:', JSON.stringify(flutterwaveConfig, null, 2));
-
       const response = await axios.post(
         'https://api.flutterwave.com/v3/payments',
         flutterwaveConfig,
         {
           headers: {
-            'Authorization': `Bearer FLWSECK_TEST-58b21921106ed2876ca416b9529051ce-X`,
+            'Authorization': `Bearer ${getFlutterwaveKey()}`,
             'Content-Type': 'application/json'
           }
         }
       );
 
-      // Log the full response
-      // console.log('Full Response:', JSON.stringify(response.data, null, 2));
 
       if (response.data.status === 'success') {
         setPaymentUrl(response.data.data?.link);
       } else {
-        // If not successful, show an alert with the response
-        // Alert.alert('Payment Initiation Failed', JSON.stringify(response.data, null, 2));
         showToast('Payment initiation failed', 'error');
       }
     } catch (error) {
-      // Comprehensive error logging
       if (error.response) {
-        // The request was made and the server responded with a status code
-        // console.error('Error Response Data:', JSON.stringify(error.response.data, null, 2));
-        // console.error('Error Response Status:', error.response.status);
-        // console.error('Error Response Headers:', error.response.headers);
-
-        // Show detailed error alert
-        // Alert.alert('Payment Error', `Status: ${error.response.status}\nMessage: ${JSON.stringify(error.response.data, null, 2)}`);
         showToast('Payment initiation failed', 'error');
       } else if (error.request) {
-        // The request was made but no response was received
-        // console.error('No response received:', error.request);
         showToast('No response received from the server', 'error');
       } else {
-        // console.error('Error:', error.message);
         showToast('Payment initiation failed', 'error');
       }
 
@@ -173,9 +154,6 @@ const MembershipPaymentScreen = () => {
   
       if (response.data.success) {
         showToast('Payment record created successfully', 'success');
-        // await fetchUsersNotification();
-        // await checkUserStatus();
-        // navigation.navigate('Main'); // Or wherever you want to redirect
       }
     } catch (error) {
       console.error('Error creating payment record:', error);
@@ -193,7 +171,7 @@ const verifyPayment = async (transactionId) => {
       `https://api.flutterwave.com/v3/transactions/${transactionId}/verify`,
       {
         headers: {
-          'Authorization': `Bearer FLWSECK_TEST-58b21921106ed2876ca416b9529051ce-X`
+          'Authorization': `Bearer ${getFlutterwaveKey()}`
         }
       }
     );
@@ -204,8 +182,8 @@ const verifyPayment = async (transactionId) => {
       
       switch (transactionStatus) {
         case 'successful':
-          await createPaymentRecord(response.data.data);
           // Create payment record after successful verification
+          await createPaymentRecord(response.data.data);
           showToast('Payment successful', 'success');
           await Promise.all([
             fetchUsersNotification(),
@@ -217,9 +195,21 @@ const verifyPayment = async (transactionId) => {
 
           break;
         case 'failed':
+          // Create payment record after successful verification
+          await createPaymentRecord(response.data.data);
+          await Promise.all([
+            fetchUsersNotification(),
+            updateUserData()
+          ]);
           showToast('Payment failed', 'error');
           break;
         case 'pending':
+          // Create payment record after successful verification
+          await createPaymentRecord(response.data.data);
+          await Promise.all([
+            fetchUsersNotification(),
+            updateUserData()
+          ]);
           showToast('Payment pending', 'info');
           break;
         default:

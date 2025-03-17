@@ -23,7 +23,7 @@ const ProfileScreen = () => {
 
 
   const data = [
-    {id: 1, screen: '', text: 'Edit Profile', icon: faUserGear},
+    {id: 1, screen: 'UpdateUser', text: 'Edit Profile', icon: faUserGear},
     {id: 2, screen: 'ChangePassword', text: 'Change Password', icon: faUserLock},
     {id: 3, screen: '', text: 'Payment History', icon: faHistory},
     {id: 4, screen: 'NotificationSettings', text: 'Notification Settings', icon: faBell},

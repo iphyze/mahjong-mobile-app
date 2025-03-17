@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, Switch, ActivityIndicator, StyleSheet, Platform, Dimensions, StatusBar, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, Image, Switch, ActivityIndicator, StyleSheet, Platform, Dimensions, RefreshControl, StatusBar, TouchableOpacity, ScrollView } from 'react-native';
 import { useNotificationStore } from '../../store/notificationStore';
 import { useToast } from '../../context/ToastContext';
 import { RFValue } from 'react-native-responsive-fontsize';
@@ -20,8 +20,7 @@ const Notifications = () => {
     const navigation = useNavigation();
     const { userNotifications, error, fetchUsersNotification, loading, markAsRead} = useAppNotificationStore();
     const notifications = userNotifications?.filter(notification => notification.isRead === 0) || [];
-    const errorHere = true;
-    // const notifications = [];
+    const [refreshing, setRefreshing] = useState(false);
 
     const [expandedMessages, setExpandedMessages] = useState({});
 
@@ -31,6 +30,22 @@ const Notifications = () => {
             [notificationId]: !prev[notificationId] // Toggle state
         }));
     };
+
+
+    // Add refresh handler
+  const onRefresh = React.useCallback(async () => {
+    setRefreshing(true);
+    try {
+      // Run all refresh functions in parallel
+      await Promise.all([
+        fetchUsersNotification()
+      ]);
+    } catch (error) {
+      console.error('Refresh error:', error);
+    } finally {
+      setRefreshing(false);
+    }
+  }, [fetchUsersNotification]);
 
     // console.log(notifications);
 
@@ -155,7 +170,20 @@ const Notifications = () => {
             {notifications && notifications.length > 0 ?
             
             <Animatable.View style={styles.notificationBox} animation={'fadeInUp'} delay={500}>
-                <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{paddingBottom: RFValue(100), paddingTop: RFValue(20)}}>
+                <ScrollView 
+                showsVerticalScrollIndicator={false} 
+                contentContainerStyle={{paddingBottom: RFValue(100), paddingTop: RFValue(20)}}
+                refreshControl={
+                    <RefreshControl
+                      refreshing={refreshing}
+                      onRefresh={onRefresh}
+                      colors={[COLORS.redThemeColorOne]} // Android
+                      tintColor={COLORS.redThemeColorOne} // iOS
+                      title="Pull to refresh" // iOS
+                      titleColor={COLORS.redThemeColorOne} // iOS
+                    />
+                  }
+                >
                     {
                         notifications.map((notice, key) => {
                             const {notificationId, message, isRead, createdAt, title} = notice;

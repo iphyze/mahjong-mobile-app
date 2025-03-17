@@ -3,6 +3,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import api from '../services/api';
 import { useToast } from './ToastContext';
+import { useHistoryStore } from '../store/historyStore';
 
 
 const AuthContext = createContext(null);
@@ -18,11 +19,13 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [hasOnboarded, setHasOnboarded] = useState(false);
   const [user, setUser] = useState(null);
   const { showToast } = useToast();
-  const [authToken, setAuthToken] = useState(null)
+  const [authToken, setAuthToken] = useState(null);
+  const {fetchUsersHistory} = useHistoryStore();
 
 
   // Check if user has completed onboarding
@@ -121,6 +124,8 @@ export const AuthProvider = ({ children }) => {
       // console.log('Storing token and userId:', { token, userId });
       await AsyncStorage.setItem('token', String(token));
       await AsyncStorage.setItem('userId', String(userId));
+      await updateUserData();
+      await fetchUsersHistory();
       setAuthToken(token); // Set the token in state
       setUser(userData);
       setIsAuthenticated(true);
@@ -147,6 +152,7 @@ export const AuthProvider = ({ children }) => {
 
   // Add a method to update user data
   const updateUserData = async () => {
+    setLoading(true);
     try {
       const userId = await AsyncStorage.getItem('userId');
       const token = await AsyncStorage.getItem('token');
@@ -156,6 +162,8 @@ export const AuthProvider = ({ children }) => {
       }
     } catch (error) {
       console.error('Update user data error:', error);
+    }finally{
+      setLoading(false);
     }
   };
 
@@ -193,7 +201,9 @@ export const AuthProvider = ({ children }) => {
         checkAuthStatus,
         checkUserStatus,
         updateUserData,
-        checkOnboardingStatus
+        checkOnboardingStatus,
+        loading,
+        setLoading
       }}
     >
       {children}

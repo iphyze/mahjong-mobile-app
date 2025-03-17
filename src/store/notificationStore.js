@@ -190,7 +190,7 @@ export const useNotificationStore = create((set, get) => ({
 
     requestPermissions: async () => {
         if (!Device.isDevice) return false;
-
+    
         try {
             const { status: existingStatus } = await Notifications.getPermissionsAsync();
             
@@ -199,23 +199,33 @@ export const useNotificationStore = create((set, get) => ({
                 const { status } = await Notifications.requestPermissionsAsync();
                 finalStatus = status;
             }
-
+    
             if (finalStatus !== 'granted') {
                 console.log('Failed to get push token for push notification!');
                 return false;
             }
-
+    
+            // Get the token immediately after permission is granted
             const token = await get().getExpoPushToken();
             if (!token) return false;
-
+    
+            // Update local storage and state
             set({ isEnabled: true, expoPushToken: token });
             await AsyncStorage.setItem('notificationsEnabled', 'true');
             await AsyncStorage.setItem('hasPromptedForNotifications', 'true');
             
-            // Update server
-            await get().updateServerWithToken(token, true);
+            // Immediately update the server with the new token
+            const serverUpdateSuccess = await get().updateServerWithToken(token);
             
-            return true;
+            if (!serverUpdateSuccess) {
+                console.error('Failed to update server with push token');
+                // Optionally implement retry logic here
+                setTimeout(async () => {
+                    await get().updateServerWithToken(token);
+                }, 5000); // Retry after 5 seconds
+            }
+            
+            return serverUpdateSuccess;
         } catch (error) {
             console.error('Error requesting permissions:', error);
             return false;

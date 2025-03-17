@@ -16,72 +16,124 @@ const LoadingSplashScreen = () => {
   const { checkAuthStatus } = useAuth();
 
 
-  return (
-    <View style={[styles.container, { backgroundColor: COLORS.whiteText }]}>
-      <Animatable.View style={StyleSheet.absoluteFill}>
-        <LinearGradient style={styles.logoContainer} colors={[COLORS.whiteText, COLORS.whiteText]}>
-          <Image source={require('../../assets/images/splash-icon-white.png')}  style={styles.topImage}/>
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator size={RFValue(20)} color={COLORS.redThemeColorOne}/>
+  // return (
+  //   <View style={[styles.container, { backgroundColor: COLORS.whiteText }]}>
+  //     <Animatable.View style={StyleSheet.absoluteFill}>
+  //       <LinearGradient style={styles.logoContainer} colors={[COLORS.whiteText, COLORS.whiteText]}>
+  //         <Image source={require('../../assets/images/splash-icon-white.png')}  style={styles.topImage}/>
+  //         <View style={styles.loadingContainer}>
+  //           <ActivityIndicator size={RFValue(20)} color={COLORS.redThemeColorOne}/>
+  //           <Text style={styles.loadingText}>Loading...</Text>
+  //         </View>
+  //         {/* <Animatable.Image source={require('../../assets/images/splash-logo.png')} style={styles.logo} resizeMode="contain" /> */}
+  //         <Image source={require('../../assets/images/splash-icon-white.png')}  style={styles.bottomImage}/>
+  //       </LinearGradient>
+  //     </Animatable.View>
+  //   </View>
+  // );
+
+        return(
+          <Animatable.View style={styles.loadingContainer} animation={'fadeIn'}>
+            <Animatable.View style={styles.loadBoxOne} animation={'pulse'} iterationCount="infinite">
+            <Animatable.View style={styles.loadBoxTwo} animation={'pulse'} iterationCount="infinite">
+              <Animatable.View style={styles.loadBoxThree} animation={'pulse'} iterationCount="infinite">
+              </Animatable.View>
+              </Animatable.View>  
+            </Animatable.View>
             <Text style={styles.loadingText}>Loading...</Text>
-          </View>
-          {/* <Animatable.Image source={require('../../assets/images/splash-logo.png')} style={styles.logo} resizeMode="contain" /> */}
-          <Image source={require('../../assets/images/splash-icon-white.png')}  style={styles.bottomImage}/>
-        </LinearGradient>
-      </Animatable.View>
-    </View>
-  );
+          </Animatable.View>
+        );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    width: width,
-    height: height,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  logoContainer: {
-    flex: 1,
-    alignItems: 'center',
-    width: width,
-    height: height,
-    justifyContent: 'center',
-    overflow: 'hidden',
-  },
-  logo: {
-    width: width * 0.5,
-    height: width * 0.5,
-    marginBottom: 20,
-  },
-  topImage: {
-    position: 'absolute',
-    width: width * 0.65,
-    height: width * 0.65,
-    alignSelf: 'center',
-    top: -140,
-    opacity: 0.08
-  },
-  bottomImage: {
-    position: 'absolute',
-    width: width * 0.65,
-    height: width * 0.65,
-    alignSelf: 'center',
-    bottom: -140,
-    opacity: 0.08
-  },
+  // container: {
+  //   flex: 1,
+  //   width: width,
+  //   height: height,
+  //   justifyContent: 'center',
+  //   alignItems: 'center',
+  // },
+  // logoContainer: {
+  //   flex: 1,
+  //   alignItems: 'center',
+  //   width: width,
+  //   height: height,
+  //   justifyContent: 'center',
+  //   overflow: 'hidden',
+  // },
+  // logo: {
+  //   width: width * 0.5,
+  //   height: width * 0.5,
+  //   marginBottom: 20,
+  // },
+  // topImage: {
+  //   position: 'absolute',
+  //   width: width * 0.65,
+  //   height: width * 0.65,
+  //   alignSelf: 'center',
+  //   top: -140,
+  //   opacity: 0.08
+  // },
+  // bottomImage: {
+  //   position: 'absolute',
+  //   width: width * 0.65,
+  //   height: width * 0.65,
+  //   alignSelf: 'center',
+  //   bottom: -140,
+  //   opacity: 0.08
+  // },
+  // loadingContainer: {
+  //   position: 'relative',
+  //   width: '100%',
+  //   flexDirection: 'row',
+  //   justifyContent: 'center',
+  //   alignItems: 'center'
+  // },
+  // loadingText: {
+  //   position: 'relative',
+  //   fontSize: RFValue(14),
+  //   fontFamily: 'Nunito-SemiBold',
+  //   marginLeft: RFValue(5),
+  //   color: COLORS.redThemeColorOne
+  // }
   loadingContainer: {
-    position: 'relative',
-    width: '100%',
-    flexDirection: 'row',
+    flex: 1,
+    width: width,
+    height: height,
+    backgroundColor: COLORS.whiteText,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+  },
+loadBoxOne: {
+    position: 'relative',
+    width: width * 0.3,
+    height: width * 0.3,
+    borderRadius: width,
+    backgroundColor: 'rgba(252, 172, 172, 0.3)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadBoxTwo: {
+    position: 'relative',
+    width: width * 0.2,
+    height: width * 0.2,
+    borderRadius: width,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(252, 172, 172, 0.5)'
+  },
+  loadBoxThree: {
+    position: 'relative',
+    width: width * 0.1,
+    height: width * 0.1,
+    borderRadius: width,
+    backgroundColor: 'rgba(252, 172, 172, 0.8)'
   },
   loadingText: {
     position: 'relative',
-    fontSize: RFValue(14),
+    marginTop: RFValue(20),
     fontFamily: 'Nunito-SemiBold',
-    marginLeft: RFValue(5),
+    fontSize: RFValue(16),
     color: COLORS.redThemeColorOne
   }
 });

@@ -21,6 +21,7 @@ import NotificationSettingsScreen from '../screens/mainScreens/NotificationSetti
 import Notifications from '../screens/mainScreens/Notifications';
 import ChangePasswordScreen from '../screens/mainScreens/ChangePasswordScreen';
 import MembershipPaymentScreen from '../screens/mainScreens/paymentScreens/MembershipPaymentScreen';
+import UpdateUser from '../screens/mainScreens/UpdateUser';
 
 
 
@@ -31,7 +32,6 @@ export default function AppNavigator() {
   const theme = useTheme();
   const { isAuthenticated, hasOnboarded, user, isLoading, checkOnboardingStatus, checkAuthStatus } = useAuth();
   const isEmailVerified = user?.isEmailVerified || false;
-  const [isSplashVisible, setIsSplashVisible] = useState(true);
   const { initializeNotifications, cleanup } = useNotificationStore();
 
 
@@ -51,22 +51,19 @@ export default function AppNavigator() {
 
 
   useEffect(() => {
-    const setup = async () => {
-        // Wait for splash screen
-        await new Promise(resolve => setTimeout(resolve, 10000));
-        setIsSplashVisible(false);
+    const timeout = setTimeout(() => {
+        const setup = async () => {
+            // await checkOnboardingStatus();
+            await checkAuthStatus();
+            await initializeNotifications();
+        };
 
-        await checkOnboardingStatus();
-        await checkAuthStatus();
+        setup();
+    }, 5000); // 5 seconds delay
 
-        // Initialize notifications after splash screen
-        await initializeNotifications();
-    };
-
-    setup();
-
-    return () => cleanup();
+    return () => clearTimeout(timeout); // Cleanup timeout on unmount
 }, []);
+
 
 
   return (
@@ -79,10 +76,7 @@ export default function AppNavigator() {
           }
         }}
       >
-        {isSplashVisible ? (
-          // Show Splash Screen
-          <Stack.Screen name="Splash" component={SplashScreen}/>
-        ) : isLoading ? (
+        {isLoading ? (
           // Show Loading Screen
           <Stack.Screen name="Loading" component={LoadingSplashScreen}/>
         ) : !hasOnboarded ? (
@@ -104,6 +98,7 @@ export default function AppNavigator() {
             <Stack.Screen name="NotificationSettings" component={NotificationSettingsScreen} />
             <Stack.Screen name="Notifications" component={Notifications} />
             <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} />
+            <Stack.Screen name="UpdateUser" component={UpdateUser} />
             <Stack.Screen name="MembershipPayment" component={MembershipPaymentScreen} />
             {/* <Stack.Screen name="ThemeAppearanceScreen" component={ThemeAppearanceScreen}/> */}
 

@@ -8,6 +8,7 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faBell, faChartLine, faCheckCircle, faChevronCircleRight, faGamepad, faHistory, faUser, faUsers } from '@fortawesome/free-solid-svg-icons';
 import * as Animatable from 'react-native-animatable'
+import { useHistoryStore } from '../../store/historyStore';
 
 const { width, height } = Dimensions.get('window');
 const windowHeight = Dimensions.get('screen').height;
@@ -17,6 +18,8 @@ const RecentMatchHistory = () => {
   const [show, setShow] = useState(false);
   const historyImg = require('../../../assets/images/history.png');
   const person = require('../../../assets/images/profile.webp');
+  const {userHistory, fetchUsersHistory} = useHistoryStore();
+  const baseUrl = 'https://mahjon-db.goldenrootscollectionsltd.com/imageUploads/mahjong-uploads/'
 
   const data = {
     name: `${user?.firstName + ' ' + user?.lastName}` || 'John Doe',
@@ -29,89 +32,61 @@ const RecentMatchHistory = () => {
         <Text style={styles.historyHeader}>Match History</Text>
 
 
-        <TouchableOpacity style={styles.containerWrapper} activeOpacity={0.8}>
-            <View style={styles.innerWrap}>
-              <Image source={person} style={styles.mainImg}/>
-              <View style={styles.innerTextWrap}>
-                <Text style={styles.skillTitle}>Skill Level: <Text style={styles.skillText}>Intermediate</Text></Text>
-              </View>
-            </View>
+        {userHistory && userHistory.length ? 
 
-            <Text style={styles.pairsText}>Pair Members</Text>
+          userHistory.slice(0, 10).map((item) => {
 
-            <View style={styles.imgWrapper}>
-                <Image source={person} style={[styles.img, styles.imgOne]}/>
-                <Image source={person} style={[styles.img, styles.imgTwo]}/>
-                <Image source={person} style={[styles.img, styles.imgTwo]}/>
-            </View>
-
-            <View style={styles.nameBox}>
-              <Text style={styles.nameText}>@sam | @james | @kelly</Text>
-            </View>
+            const { id, userImage, skillLevel, pairMembersData, scheduledDate, gameStatus } = item;
+                
+                return (
+                  <Animatable.View animation={'fadeInUp'} style={styles.navBtnWrapper} key={id}>
+                    <TouchableOpacity style={styles.containerWrapper} activeOpacity={0.8}>
+                      <View style={styles.innerWrap}>
+                        <Image source={{uri: baseUrl + userImage}} style={styles.mainImg}/>
+                        <View style={styles.innerTextWrap}>
+                          <Text style={styles.skillTitle}>
+                            Skill Level: <Text style={styles.skillText}>{skillLevel}</Text>
+                          </Text>
+                        </View>
+                      </View>
             
-            <Text style={styles.scheduleTxt}>Scheduled Date: 8th Feb, 2025 | 12:00PM</Text>
-            <Text style={styles.statusText}>Game Status: Unplayed</Text>
-
-            <FontAwesomeIcon icon={faChevronCircleRight} size={RFValue(16)} 
-            color={COLORS.redThemeColorOne} style={styles.viewIcon}/>
-        </TouchableOpacity>
-
-
-        <TouchableOpacity style={styles.containerWrapper} activeOpacity={0.8}>
-            <View style={styles.innerWrap}>
-              <Image source={person} style={styles.mainImg}/>
-              <View style={styles.innerTextWrap}>
-                <Text style={styles.skillTitle}>Skill Level: <Text style={styles.skillText}>Intermediate</Text></Text>
-              </View>
-            </View>
-
-            <Text style={styles.pairsText}>Pair Members</Text>
-
-            <View style={styles.imgWrapper}>
-                <Image source={person} style={[styles.img, styles.imgOne]}/>
-                <Image source={person} style={[styles.img, styles.imgTwo]}/>
-                <Image source={person} style={[styles.img, styles.imgTwo]}/>
-            </View>
-
-            <View style={styles.nameBox}>
-              <Text style={styles.nameText}>@sam | @james | @kelly</Text>
-            </View>
+                      <Text style={styles.pairsText}>Pair Members</Text>
             
-            <Text style={styles.scheduleTxt}>Scheduled Date: 8th Feb, 2025 | 12:00PM</Text>
-            <Text style={styles.statusText}>Game Status: Unplayed</Text>
-
-            <FontAwesomeIcon icon={faChevronCircleRight} size={RFValue(16)} 
-            color={COLORS.redThemeColorOne} style={styles.viewIcon}/>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.containerWrapper} activeOpacity={0.8}>
-            <View style={styles.innerWrap}>
-              <Image source={person} style={styles.mainImg}/>
-              <View style={styles.innerTextWrap}>
-                <Text style={styles.skillTitle}>Skill Level: <Text style={styles.skillText}>Intermediate</Text></Text>
-              </View>
-            </View>
-
-            <Text style={styles.pairsText}>Pair Members</Text>
-
-            <View style={styles.imgWrapper}>
-                <Image source={person} style={[styles.img, styles.imgOne]}/>
-                <Image source={person} style={[styles.img, styles.imgTwo]}/>
-                <Image source={person} style={[styles.img, styles.imgTwo]}/>
-            </View>
-
-            <View style={styles.nameBox}>
-              <Text style={styles.nameText}>@sam | @james | @kelly</Text>
-            </View>
+                      <View style={styles.imgWrapper}>
+                        {pairMembersData.map((pair) => (
+                          <Image  key={pair.dataId} source={{uri: baseUrl + pair.image}} style={styles.img}/>
+                        ))}
+                      </View>
             
-            <Text style={styles.scheduleTxt}>Scheduled Date: 8th Feb, 2025 | 12:00PM</Text>
-            <Text style={styles.statusText}>Game Status: Unplayed</Text>
+                      <View style={styles.nameBox}>
+                        {pairMembersData.map((pair) => (
+                          <Text key={pair.dataId} style={styles.nameText}>@{pair.userName} | </Text>
+                        ))}
+                      </View>
+                      
+                      <Text style={styles.scheduleTxt}>Scheduled Date: {scheduledDate || 'Not yet defined'}</Text>
+                      <Text style={styles.statusText}>Game Status: {gameStatus}</Text>
+            
+                      <FontAwesomeIcon icon={faChevronCircleRight} size={RFValue(16)} color={COLORS.redThemeColorOne} style={styles.viewIcon}/>
+                    </TouchableOpacity>
+                  </Animatable.View>
+                );
 
-            <FontAwesomeIcon icon={faChevronCircleRight} size={RFValue(16)} 
-            color={COLORS.redThemeColorOne} style={styles.viewIcon}/>
-        </TouchableOpacity>
+          })
 
-        {show &&
+          : 
+
+          <View style={styles.noHistoryBox}>
+            <Image source={historyImg} style={styles.noHistoryImg}/>
+            <Text style={styles.noHistoryText}>You currently have no match history!</Text>
+            <Text style={styles.noHistoryTextTwo}>
+              When you begin to play games, your match history will be populated and displayed below!
+            </Text>
+          </View>  
+
+        }
+
+        {/* {show &&
         <View style={styles.noHistoryBox}>
             <Image source={historyImg} style={styles.noHistoryImg}/>
             <Text style={styles.noHistoryText}>You currently have no match history!</Text>
@@ -119,7 +94,7 @@ const RecentMatchHistory = () => {
               When you begin to play games, your match history will be populated and displayed below!
             </Text>
         </View>
-        }
+        } */}
 
     </Animatable.View>
   )
