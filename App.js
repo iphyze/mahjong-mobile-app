@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Dimensions } from 'react-native';
+import { View, StyleSheet, Platform } from 'react-native';
 import { Provider } from 'react-redux';
 import { store } from './src/store';
 import AppNavigator from './src/navigation/AppNavigator';
@@ -16,11 +17,9 @@ import SplashScreen from './src/screens/SplashScreen';
 
 enableScreens();
 
-
 const App = () => {
   const [appIsReady, setAppIsReady] = useState(false);
   const [isSplashVisible, setIsSplashVisible] = useState(true);
-
 
   useEffect(() => {
     const setup = async () => {
@@ -30,10 +29,8 @@ const App = () => {
   
     setup();
   
-    return () => {}; // ✅ Empty cleanup function
+    return () => {};
   }, []);
-  
-  
 
   useEffect(() => {
     async function prepare() {
@@ -61,10 +58,10 @@ const App = () => {
   return (
     <Provider store={store}>
       <ThemeProvider>
-        <StatusBar translucent backgroundColor="transparent" />
+        <StatusBar style="light" translucent={true} backgroundColor="transparent" hideTransitionAnimation="fade"/>
         <ToastProvider>
           <AuthProvider>
-            <GestureHandlerRootView style={styles.container}>
+            <GestureHandlerRootView style={[styles.container, Platform.OS === 'ios' && styles.iosContainer]}>
               {isSplashVisible ? <SplashScreen /> : <AppNavigator />}
             </GestureHandlerRootView>
           </AuthProvider>
@@ -80,6 +77,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: COLORS.whiteText
   },
+  iosContainer: {
+    paddingTop: 0 // Ensures content doesn't get pushed down on iOS
+  }
 });
 
 export default App;

@@ -22,6 +22,8 @@ import Notifications from '../screens/mainScreens/Notifications';
 import ChangePasswordScreen from '../screens/mainScreens/ChangePasswordScreen';
 import MembershipPaymentScreen from '../screens/mainScreens/paymentScreens/MembershipPaymentScreen';
 import UpdateUser from '../screens/mainScreens/UpdateUser';
+import TutorshipSubscriptionScreen from '../screens/mainScreens/paymentScreens/TutorshipSubcriptionScreen';
+import TutorshipPaymentScreen from '../screens/mainScreens/paymentScreens/TutorshipPaymentScreen';
 
 
 
@@ -90,7 +92,7 @@ export default function AppNavigator() {
             <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
             <Stack.Screen name="EmailConfirmation" component={EmailConfirmationScreen} />
           </Stack.Group>
-        ) : !isEmailVerified ? (
+        ) : user && !isEmailVerified ? (
           <Stack.Screen name="EmailVerify" component={EmailVerifyScreen}/>
         ) : (
           <Stack.Group>
@@ -100,6 +102,8 @@ export default function AppNavigator() {
             <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} />
             <Stack.Screen name="UpdateUser" component={UpdateUser} />
             <Stack.Screen name="MembershipPayment" component={MembershipPaymentScreen} />
+            <Stack.Screen name="TutorshipPayment" component={TutorshipPaymentScreen} />
+            <Stack.Screen name="TutorshipSubscription" component={TutorshipSubscriptionScreen} />
             {/* <Stack.Screen name="ThemeAppearanceScreen" component={ThemeAppearanceScreen}/> */}
 
           </Stack.Group>

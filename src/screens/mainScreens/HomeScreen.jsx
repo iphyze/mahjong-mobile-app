@@ -15,6 +15,7 @@ import RecentMatchHistory from './RecentMatchHistory';
 import { useAppNotificationStore } from '../../store/appNotificationStore';
 import { useNavigation } from '@react-navigation/native';
 import { useHistoryStore } from '../../store/historyStore';
+import { usePaymentStore } from '../../store/paymentStore';
 
 
 const { width, height } = Dimensions.get('window');
@@ -29,9 +30,12 @@ const HomeScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
   const userImage = `https://mahjon-db.goldenrootscollectionsltd.com/imageUploads/mahjong-uploads/${user?.image}`;
   const defualtImage = `https://mahjon-db.goldenrootscollectionsltd.com/imageUploads/mahjong-uploads/userIcon.png`;
-  const {fetchUsersHistory} = useHistoryStore();
+  const {userHistory, fetchUsersHistory} = useHistoryStore();
+  const {userPayment, fetchUserPayment} = usePaymentStore();
+  const subscriptions = userPayment.length || 0;
+  const matches = userHistory.length || 0;
   
-  // console.log(userNotifications);
+  // console.log(subscriptions);
 
 
   const data = {
@@ -73,6 +77,28 @@ const HomeScreen = () => {
 
   
 
+  const getMembershipCount = () => {
+    return userPayment.filter(payment => 
+      payment.payment_type === 'Membership Payment' 
+      // && payment.paymentStatus === 'successful'
+    ).length;
+  };
+
+  const getTutorshipCount = () => {
+    return userPayment.filter(payment => 
+      payment.payment_type === 'Tutorship Payment' 
+      // && payment.paymentStatus === 'successful'
+    ).length;
+  };
+
+
+  const getPlayedMatches = () => {
+    return userHistory.filter(game => game.gameStatus === 'Played').length;
+  }
+
+  const getUnplayedMatches = () => {
+    return userHistory.filter(game => game.gameStatus === 'Unplayed').length;
+  }
 
   return(
     <View style={styles.container}>
@@ -89,7 +115,9 @@ const HomeScreen = () => {
         </TouchableOpacity>
         </LinearGradient>
 
-        <Animatable.Image source={{uri: userImage || defualtImage}} style={styles.profileImg} animation={'fadeInUp'} delay={500}/>
+        {user?.image 
+        ? <Animatable.Image source={{uri: userImage}} style={styles.profileImg} animation={'fadeInUp'} delay={500}/>
+        : <Animatable.Image source={require('../../../assets/images/userIcon.png')} style={styles.profileImg} animation={'fadeInUp'} delay={500}/> }
       </View>
 
       <View style={styles.bottomBox}> 
@@ -129,7 +157,7 @@ const HomeScreen = () => {
                     <LinearGradient colors={['#fff3f3', '#ffe6e6']} style={styles.learnBoxGradient}>
                       <Text style={styles.learnHeader}>LEARN HOW TO PLAY</Text>
                       <Text style={styles.learnBrief}>Subscribe for expert tutorship and master the game effortlessly!</Text>
-                      <TouchableOpacity style={styles.learnBtn}>
+                      <TouchableOpacity style={styles.learnBtn} onPress={() => navigation.navigate('TutorshipSubscription')} activeOpacity={0.8}>
                         <Text style={styles.learnBtnText}>Subscribe Now</Text>
                       </TouchableOpacity>
                       {/* <Text>LEARN HOW TO PLAY</Text> */}
@@ -146,10 +174,10 @@ const HomeScreen = () => {
                     </View> */}
                     <View style={styles.textBox}>
                       <Text style={styles.textTxt}>Total Matches</Text>
-                      <Text style={styles.textNumber}>10</Text>
+                      <Text style={styles.textNumber}>{matches}</Text>
                     </View>
                     <View style={styles.textBoxTwo}>
-                      <Text style={styles.textTxtTwo}>Played: 7  |  Unplayed: 2</Text>
+                      <Text style={styles.textTxtTwo}>Played: {getPlayedMatches()}  |  Unplayed: {getUnplayedMatches()}</Text>
                     </View>
                     <Image source={require('../../../assets/images/match-played.png')} style={styles.mpImg}/>
                     <FontAwesomeIcon icon={faChevronCircleRight} color={'#de7c1b'} style={styles.learnIcon}/>
@@ -162,10 +190,10 @@ const HomeScreen = () => {
                     </View> */}
                     <View style={styles.textBox}>
                       <Text style={styles.textTxt}>Subscriptions</Text>
-                      <Text style={[styles.textNumber, styles.textNumberTwo]}>2</Text>
+                      <Text style={[styles.textNumber, styles.textNumberTwo]}>{subscriptions}</Text>
                     </View>
                     <View style={styles.textBoxTwo}>
-                      <Text style={styles.textTxtTwo}>Ongoing: 2  |  Expired: 0</Text>
+                      <Text style={styles.textTxtTwo}>Membership: {getMembershipCount()}  |  Tutorship: {getTutorshipCount()}</Text>
                     </View>
                     <Image source={require('../../../assets/images/subscriptions.png')} style={styles.mpImg}/>
                     <FontAwesomeIcon icon={faChevronCircleRight} color={'#3b3b80'} style={styles.learnIcon}/>

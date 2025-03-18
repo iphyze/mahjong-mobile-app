@@ -25,8 +25,8 @@ const ProfileScreen = () => {
   const data = [
     {id: 1, screen: 'UpdateUser', text: 'Edit Profile', icon: faUserGear},
     {id: 2, screen: 'ChangePassword', text: 'Change Password', icon: faUserLock},
-    {id: 3, screen: '', text: 'Payment History', icon: faHistory},
-    {id: 4, screen: 'NotificationSettings', text: 'Notification Settings', icon: faBell},
+    // {id: 3, screen: '', text: 'Payment History', icon: faHistory},
+    {id: 3, screen: 'NotificationSettings', text: 'Notification Settings', icon: faBell},
   ]
 
 
@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
       position: 'relative',
       width: '100%',
       paddingHorizontal: RFValue(10),
-      paddingVertical: RFValue(17),
+      paddingVertical: RFValue(18),
       backgroundColor: COLORS.inputBg,
       flexDirection: 'row',
       flexWrap: 'wrap',

@@ -9,7 +9,8 @@ import { useColorScheme, Platform, Pressable } from 'react-native';
 import { COLORS } from '../utils/colors';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faCog, faGamepad, faHistory, faHome, faHomeAlt, faTimeline, faUser } from '@fortawesome/free-solid-svg-icons';
+import { faCog, faGamepad, faHistory, faHome, faHomeAlt, faMoneyBill, faTimeline, faUser } from '@fortawesome/free-solid-svg-icons';
+import PaymentHistoryScreen from '../screens/mainScreens/PaymentHistoryScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -21,6 +22,10 @@ const TAB_CONFIG = {
   History: {
     component: HistoryScreen,
     iconName: faGamepad
+  },
+  Payment: {
+    component: PaymentHistoryScreen,
+    iconName: faMoneyBill
   },
   Settings: {
     component: ProfileScreen,
